@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -173,7 +174,6 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     public String toModelFilename(String name) {
         return toModel("model_" + name);
     }
-
     public String toModel(String name) {
         if (!StringUtils.isEmpty(modelNamePrefix)) {
             name = modelNamePrefix + "_" + name;
