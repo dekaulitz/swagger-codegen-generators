@@ -4,14 +4,41 @@ package {{apiPackage}}
 {{#operations}}
 import (
 	"net/http"
-    "github.com/gin-gonic/gin"
+    "encoding/json"
+    "github.com/gin-gonic/gin"{{#hasModel}}
+    "{{invokerPackage}}/src/{{modelPackage}}"
+{{/hasModel}}
 ){{#operation}}
-
+    {{#contents}}
 /**
-*{{summary}}
-*/
+ * {{summary}}
+ * {{externalDocs}}
+ */
 func {{nickname}}(c *gin.Context) {
-  {{}}
-    c.JSON(http.StatusOK, msg)
+    {{#headerParams}}
+    var {{paramName}} {{dataType}}=c.Request.Header.Get("{{baseName}}")
+    {{/headerParams}}
+    {{#pathParams}}
+    var {{paramName}} {{dataType}}=c.Param("{{baseName}}")
+    {{/pathParams}}
+    {{#queryParams}}
+    {{>queryParam}}
+    {{/queryParams}}
+    {{#bodyParams}}
+    var body {{dataType}}
+    jsonFail := c.BindJSON(&body)
+    if jsonFail != nil {
+        panic(jsonFail)
+    }
+    {{/bodyParams}}
+    {{#produces}}
+    c.Writer.Header().Set("Content-Type","{{mediaType}}")
+    {{/produces}}
+    c.Writer.WriteHeader(http.StatusOK)
+    {{#returnType}}
+    var responseBody {{returnType}}
+    res,_:=json.Marshal(responseBody)
+    c.Writer.Write(res)
+    {{/returnType}}
     return
-}{{/operation}}{{/operations}}
+}{{/contents}}{{/operation}}{{/operations}}

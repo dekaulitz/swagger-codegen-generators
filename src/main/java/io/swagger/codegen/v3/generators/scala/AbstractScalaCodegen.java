@@ -1,11 +1,5 @@
 package io.swagger.codegen.v3.generators.scala;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.samskivert.mustache.Escapers;
 import com.samskivert.mustache.Mustache;
 import io.swagger.codegen.v3.CliOption;
@@ -17,6 +11,12 @@ import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractScalaCodegen extends DefaultCodegenConfig {
 

@@ -1,12 +1,7 @@
 package io.swagger.codegen.v3.generators.go;
 
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConfig;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -14,20 +9,10 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
@@ -88,10 +73,11 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         typeMapping.put("file", "*os.File");
         // map binary to string as a workaround
         // the correct solution is to use []byte
-        typeMapping.put("binary", "string");
+        typeMapping.put("binary", "[]byte");
         typeMapping.put("ByteArray", "string");
         typeMapping.put("object", "interface{}");
         typeMapping.put("UUID", "string");
+        typeMapping.put("Object", "interface{}");
 
         importMapping = new HashMap<>();
 
@@ -299,6 +285,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         for (CodegenOperation operation : operations) {
             // http method verb conversion (e.g. PUT => Put)
             operation.httpMethod = camelize(operation.httpMethod.toLowerCase());
+
         }
 
         // remove model imports to avoid error

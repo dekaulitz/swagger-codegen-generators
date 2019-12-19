@@ -1,10 +1,6 @@
 package io.swagger.codegen.v3.generators.java;
 
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.features.JbossFeature;
 import io.swagger.v3.oas.models.Operation;
 import org.apache.commons.lang3.BooleanUtils;
@@ -98,7 +94,7 @@ public class JavaResteasyServerCodegen extends AbstractJavaJAXRSServerCodegen im
             supportingFiles.add(new SupportingFile("LocalDateProvider.mustache", (sourceFolder + '/' + apiPackage).replace(".", "/"), "LocalDateProvider.java"));
         }
     }
-    
+
 
     @Override
     public String getArgumentsLocation() {

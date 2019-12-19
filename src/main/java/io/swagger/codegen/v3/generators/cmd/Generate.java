@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.codegen.v3.ClientOptInput;
 import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.DefaultGenerator;
 import io.swagger.codegen.v3.config.CodegenConfigurator;
 import io.swagger.codegen.v3.generators.CLIHelper;
 import io.swagger.v3.core.util.Json;
@@ -520,7 +519,7 @@ public class Generate implements Runnable {
         applyReservedWordsMappingsKvpList(reservedWordsMappings, configurator);
         final ClientOptInput clientOptInput = configurator.toClientOptInput();
 
-        new DefaultGenerator().opts(clientOptInput).generate();
+        new CustomGenerator().opts(clientOptInput).generate();
     }
 
     private void loadArguments() {

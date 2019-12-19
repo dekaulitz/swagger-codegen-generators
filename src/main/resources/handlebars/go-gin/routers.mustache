@@ -1,14 +1,12 @@
 {{>partial_header}}
-package {{apiPackage}}
+package controllers
 
 import (
-    "{{invokerPackage}}/controllers"
     "github.com/gin-gonic/gin"
-    "net/http"
 )
 func GetRouters(r *gin.Engine) {
 {{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
     //{{summary}}
-    r.{{httpMethod}}("{{{basePathWithoutHost}}}{{{path}}}",{{operationId}})
+    r.{{httpMethod}}("{{{path}}}",{{operationId}})
     {{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 }

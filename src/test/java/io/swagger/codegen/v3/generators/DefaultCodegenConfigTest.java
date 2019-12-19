@@ -1,28 +1,16 @@
 package io.swagger.codegen.v3.generators;
 
-import io.swagger.codegen.v3.CodegenArgument;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenResponse;
-import io.swagger.codegen.v3.CodegenType;
+import io.swagger.codegen.v3.*;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.headers.Header;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.OpenAPIV3Parser;
-
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -105,7 +93,7 @@ public class DefaultCodegenConfigTest {
         PathItem dummyPath = new PathItem()
             .post(new Operation())
             .get(new Operation());
-      
+
         OpenAPI openAPI = new OpenAPI()
             .path("dummy", dummyPath);
 
@@ -119,7 +107,7 @@ public class DefaultCodegenConfigTest {
         operation.setRequestBody(body);
         Parameter param = new Parameter().in("query").name("testParameter");
         operation.addParametersItem(param);
-        
+
         CodegenOperation codegenOperation = codegen.fromOperation("/path", "GET", operation, null, openAPI);
 
         Assert.assertEquals(true, codegenOperation.allParams.get(0).getVendorExtensions().get("x-has-more"));
@@ -135,7 +123,7 @@ public class DefaultCodegenConfigTest {
     @Test(dataProvider = "testGetCollectionFormatProvider")
     public void testGetCollectionFormat(Parameter.StyleEnum style, Boolean explode, String expectedCollectionFormat) {
         final DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
-        
+
         ArraySchema paramSchema = new ArraySchema()
                 .items(new IntegerSchema());
         Parameter param = new Parameter()
@@ -144,12 +132,12 @@ public class DefaultCodegenConfigTest {
                 .schema(paramSchema)
                 .style(style)
                 .explode(explode);
-        
+
         CodegenParameter codegenParameter = codegen.fromParameter(param, new HashSet<>());
-        
+
         Assert.assertEquals(codegenParameter.collectionFormat, expectedCollectionFormat);
     }
-    
+
     @DataProvider(name = "testGetCollectionFormatProvider")
     public Object[][] provideData_testGetCollectionFormat() {
         // See: https://swagger.io/docs/specification/serialization/#query
@@ -158,20 +146,20 @@ public class DefaultCodegenConfigTest {
             { Parameter.StyleEnum.FORM,             null,           "multi" },
             { null,                                 Boolean.TRUE,   "multi" },
             { Parameter.StyleEnum.FORM,             Boolean.TRUE,   "multi" },
-            
+
             { null,                                 Boolean.FALSE,  "csv" },
             { Parameter.StyleEnum.FORM,             Boolean.FALSE,  "csv" },
-            
+
             { Parameter.StyleEnum.SPACEDELIMITED,   Boolean.TRUE,   "multi" },
             { Parameter.StyleEnum.SPACEDELIMITED,   Boolean.FALSE,  "space" },
             { Parameter.StyleEnum.SPACEDELIMITED,   null,           "multi" },
-            
+
             { Parameter.StyleEnum.PIPEDELIMITED,    Boolean.TRUE,   "multi" },
             { Parameter.StyleEnum.PIPEDELIMITED,    Boolean.FALSE,  "pipe" },
             { Parameter.StyleEnum.PIPEDELIMITED,    null,           "multi" },
         };
     }
-    
+
     /**
      * Tests that {@link DefaultCodegenConfig#fromOperation(String, String, Operation, java.util.Map, OpenAPI)} correctly
      * resolves the consumes list when the request body is specified via reference rather than inline.
@@ -179,7 +167,7 @@ public class DefaultCodegenConfigTest {
     @Test
     public void testRequestBodyRefConsumesList() {
         final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requestBodyRefTest.json");
-        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
         final String path = "/test/requestBodyRefTest";
         final Operation op = openAPI.getPaths().get(path).getPost();
         final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
@@ -194,28 +182,28 @@ public class DefaultCodegenConfigTest {
     /**
      * Tests when a 'application/x-www-form-urlencoded' request body is marked as required that all form
      * params are also marked as required.
-     * 
+     *
      * @see #testOptionalFormParams()
      */
     @Test
     public void testRequiredFormParams() {
         // Setup
-        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
 
         final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requiredFormParamsTest.yaml");
         final String path = "/test_required";
-        
+
         final Operation op = openAPI.getPaths().get(path).getPost();
         Assert.assertNotNull(op);
-        
+
         // Test
         final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
-        
+
         // Verification
         List<CodegenParameter> formParams = codegenOp.getFormParams();
         Assert.assertNotNull(formParams);
         Assert.assertEquals(formParams.size(), 2);
-        
+
         for (CodegenParameter formParam : formParams) {
             Assert.assertTrue(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is not required.");
         }
@@ -231,28 +219,28 @@ public class DefaultCodegenConfigTest {
     /**
      * Tests when a 'application/x-www-form-urlencoded' request body is marked as optional that all form
      * params are also marked as optional.
-     * 
+     *
      * @see #testRequiredFormParams()
      */
     @Test
     public void testOptionalFormParams() {
         // Setup
-        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig(); 
+        final P_DefaultCodegenConfig codegen = new P_DefaultCodegenConfig();
 
         final OpenAPI openAPI = new OpenAPIV3Parser().read("src/test/resources/3_0_0/requiredFormParamsTest.yaml");
         final String path = "/test_optional";
-        
+
         final Operation op = openAPI.getPaths().get(path).getPost();
         Assert.assertNotNull(op);
-        
+
         // Test
         final CodegenOperation codegenOp = codegen.fromOperation(path, "post", op, openAPI.getComponents().getSchemas(), openAPI);
-        
+
         // Verification
         List<CodegenParameter> formParams = codegenOp.getFormParams();
         Assert.assertNotNull(formParams);
         Assert.assertEquals(formParams.size(), 2);
-        
+
         for (CodegenParameter formParam : formParams) {
             Assert.assertFalse(formParam.getRequired(), "Form param '" + formParam.getParamName() + "' is required.");
         }

@@ -1,14 +1,6 @@
 package io.swagger.codegen.v3.generators.html;
 
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenResponse;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.codegen.v3.utils.Markdown;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -155,7 +147,7 @@ public class StaticHtmlCodegen extends DefaultCodegenConfig {
 
     /**
      * Convert Markdown text to HTML
-     * 
+     *
      * @param input
      *            text in Markdown; may be null.
      * @return the text, converted to Markdown. For null input, "" is returned.

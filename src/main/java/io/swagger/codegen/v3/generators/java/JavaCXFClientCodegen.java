@@ -1,11 +1,6 @@
 package io.swagger.codegen.v3.generators.java;
 
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.features.BeanValidationFeatures;
 import io.swagger.codegen.v3.generators.features.GzipTestFeatures;
 import io.swagger.codegen.v3.generators.features.LoggingTestFeatures;

@@ -1,17 +1,12 @@
 package io.swagger.codegen.v3.generators.go;
 
 import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenProperty;
 import io.swagger.codegen.v3.CodegenType;
 import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
-
-import org.apache.commons.lang3.StringUtils;
 
 public class GoServerCodegen extends AbstractGoCodegen {
 

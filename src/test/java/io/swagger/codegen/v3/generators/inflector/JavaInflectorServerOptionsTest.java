@@ -1,7 +1,7 @@
 package io.swagger.codegen.v3.generators.inflector;
 
-import io.swagger.codegen.v3.generators.AbstractOptionsTest;
 import io.swagger.codegen.v3.CodegenConfig;
+import io.swagger.codegen.v3.generators.AbstractOptionsTest;
 import io.swagger.codegen.v3.generators.java.JavaInflectorServerCodegen;
 import io.swagger.codegen.v3.generators.options.JavaInflectorServerOptionsProvider;
 import mockit.Expectations;

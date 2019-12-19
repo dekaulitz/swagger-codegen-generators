@@ -84,6 +84,9 @@
             </plugin>
         </plugins>
     </build>
+    <modules>
+        <module>modules/swagger-codegen</module>
+    </modules>
     <dependencyManagement>
         <dependencies>
             <!-- swagger-core v2 -->

@@ -1,30 +1,14 @@
 package io.swagger.codegen.v3.generators.java;
 
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenModelFactory;
-import io.swagger.codegen.v3.CodegenModelType;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.ComposedSchema;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.codegen.v3.*;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class JavaClientCodegenTest {
 
@@ -154,7 +138,7 @@ public class JavaClientCodegenTest {
         Assert.assertEquals(codegenParameter2.description, "A list of list of values");
         Assert.assertEquals(codegenParameter2.dataType, "List<List<Integer>>");
         Assert.assertEquals(codegenParameter2.baseType, "List");
-        
+
         RequestBody body3 = new RequestBody();
         body3.setDescription("A list of points");
         body3.setContent(new Content().addMediaType("application/json", new MediaType().schema(new ArraySchema().items(new ObjectSchema().$ref("#/components/schemas/Point")))));

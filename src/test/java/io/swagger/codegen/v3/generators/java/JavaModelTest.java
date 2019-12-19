@@ -1,30 +1,11 @@
 package io.swagger.codegen.v3.generators.java;
 
 import com.google.common.collect.Sets;
-import io.swagger.codegen.v3.ClientOptInput;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenResponse;
-import io.swagger.codegen.v3.DefaultGenerator;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.config.CodegenConfigurator;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ByteArraySchema;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.DateTimeSchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.media.XML;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.QueryParameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
@@ -354,7 +335,7 @@ public class JavaModelTest {
         Assert.assertEquals(cm.imports.size(), 4);
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("Schema", "List", "ArrayList", "Children")).size(), 4);
     }
-    
+
     @Test(description = "convert an array model")
     public void arrayModelTestUsingOas2() {
         final Schema schema = new ArraySchema()
@@ -390,7 +371,7 @@ public class JavaModelTest {
         Assert.assertEquals(cm.imports.size(), 4);
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("Schema", "Map", "HashMap", "Children")).size(), 4);
     }
-    
+
     @Test(description = "convert an map model")
     public void mapModelTestUsingOas2() {
         final Schema schema = new MapSchema()
@@ -408,7 +389,7 @@ public class JavaModelTest {
         Assert.assertEquals(cm.imports.size(), 4);
         Assert.assertEquals(Sets.intersection(cm.imports, Sets.newHashSet("ApiModel", "Map", "HashMap", "Children")).size(), 4);
     }
-    
+
     @Test(description = "convert a model with upper-case property names")
     public void upperCaseNamesTest() {
         final Schema schema = new Schema()
@@ -897,7 +878,7 @@ public class JavaModelTest {
                 .items(new Schema<>().$ref("#/components/schemas/Pet"));
         Operation operation = new Operation()
                 .requestBody(new RequestBody()
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(testSchema))))
                 .responses(
                         new ApiResponses().addApiResponse("204", new ApiResponse()
@@ -926,7 +907,7 @@ public class JavaModelTest {
         Operation operation = new Operation().responses(
                 new ApiResponses().addApiResponse("200", new ApiResponse()
                         .description("Ok response")
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(testSchema)))));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();
@@ -970,7 +951,7 @@ public class JavaModelTest {
                         .items(new Schema<>().$ref("#/components/schemas/Pet")));
         Operation operation = new Operation()
                 .requestBody(new RequestBody()
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(testSchema))))
                 .responses(
                         new ApiResponses().addApiResponse("204", new ApiResponse()
@@ -1000,7 +981,7 @@ public class JavaModelTest {
         Operation operation = new Operation().responses(
                 new ApiResponses().addApiResponse("200", new ApiResponse()
                         .description("Ok response")
-                        .content(new Content().addMediaType("application/json", 
+                        .content(new Content().addMediaType("application/json",
                                 new MediaType().schema(testSchema)))));
         final Map<String, Schema> allDefinitions = Collections.singletonMap("Pet", new ObjectSchema());
         final DefaultCodegenConfig codegen = new JavaClientCodegen();

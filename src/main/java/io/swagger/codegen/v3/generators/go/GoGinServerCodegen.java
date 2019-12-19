@@ -1,23 +1,31 @@
 package io.swagger.codegen.v3.generators.go;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.SupportingFile;
+import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.generators.examples.ExampleGenerator;
 import io.swagger.codegen.v3.generators.openapi.OpenAPIYamlGenerator;
-import io.swagger.util.Json;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
+import io.swagger.v3.core.util.Constants;
+import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.media.Schema;
-import jdk.nashorn.internal.ir.ObjectNode;
+import io.swagger.v3.oas.models.examples.Example;
+import io.swagger.v3.oas.models.headers.Header;
+import io.swagger.v3.oas.models.media.*;
+import io.swagger.v3.oas.models.parameters.*;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 /**
  * <p>GoGinServerCodegen class.</p>
@@ -30,11 +38,12 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     protected String apiVersion = "1.0.0";
     protected int serverPort = 8080;
     protected String projectName = "swagger-server";
-    protected String apiPath = "apps/controllers";
-    protected String vmodels = "apps/vmodels";
+    protected String apiPath = "src/controllers";
+    protected String vmodels = "src/vmodels";
     protected String utils = "utils";
     protected String modelPackage = "vmodels";
     protected String apiPackage = "controllers";
+    protected String vModels = "vmodels";
 
     /**
      * <p>Constructor for GoGinServerCodegen.</p>
@@ -204,28 +213,104 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
         return outputFolder + File.separator + vmodels.replace('.', File.separatorChar);
     }
 
-    /**
-     * @param objs
-     * @return
-     * @desc generating swagger docs automaticaly
-     */
-    @Override
-    public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        mapper.findAndRegisterModules();
-        OpenAPI openAPI = (OpenAPI) objs.get("openAPI");
-        if (openAPI != null) {
-            OpenAPIYamlGenerator test = new OpenAPIYamlGenerator();
-            test.setOutputDir(outputFolder + File.separator + "docs");
-            test.preprocessOpenAPI(openAPI);
-        }
 
-        return super.postProcessSupportingFileData(objs);
+    @Override
+    public String modelPackage() {
+        return vModels;
     }
 
     @Override
-    public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Schema> schemas, OpenAPI openAPI) {
+    public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> objectMap = (Map<String, Object>) objs.get("operations");
+        @SuppressWarnings("unchecked")
+        List<CodegenOperation> operations = (List<CodegenOperation>) objectMap.get("operation");
+        for (CodegenOperation operation : operations) {
+            operation.setReturnType(this.toModelImport(operation.getReturnType()));
+            operation.bodyParams.forEach(codegenParameter -> {
+                if (codegenParameter.getItems() != null)
+                    if (codegenParameter.getItems().containerType.equals("array")) {
+                        codegenParameter.dataType = codegenParameter.dataType.replace("[]", "[]vmodels.");
+                    } else
+                        codegenParameter.dataType = this.toModelImport(codegenParameter.dataType);
+                else
+                    codegenParameter.dataType = this.toModelImport(codegenParameter.dataType);
+            });
+            // http method verb conversion (e.g. PUT => Put)
+//            operation.returnType = this.toModelName(operation.returnType);
+        }
 
-        return super.fromOperation(path, httpMethod, operation, schemas, openAPI);
+        // remove model imports to avoid error
+        List<Map<String, String>> imports = (List<Map<String, String>>) objs.get("imports");
+        if (imports == null)
+            return objs;
+
+        Iterator<Map<String, String>> iterator = imports.iterator();
+        while (iterator.hasNext()) {
+            String _import = iterator.next().get("import");
+            if (_import.startsWith(apiPackage()))
+                iterator.remove();
+        }
+
+        // this will only import "fmt" if there are items in pathParams
+        for (CodegenOperation operation : operations) {
+            if (operation.pathParams != null && operation.pathParams.size() > 0) {
+                imports.add(createMapping("import", "fmt"));
+                break; //just need to import once
+            }
+        }
+
+        boolean addedOptionalImport = false;
+        boolean addedTimeImport = false;
+        boolean addedOSImport = false;
+        for (CodegenOperation operation : operations) {
+            for (CodegenParameter param : operation.allParams) {
+                // import "os" if the operation uses files
+                if (!addedOSImport && param.dataType == "*os.File") {
+                    imports.add(createMapping("import", "os"));
+                    addedOSImport = true;
+                }
+
+                // import "time" if the operation has a required time parameter.
+                if (param.required) {
+                    if (!addedTimeImport && param.dataType == "time.Time") {
+                        imports.add(createMapping("import", "time"));
+                        addedTimeImport = true;
+                    }
+                }
+
+                // import "optionals" package if the parameter is primitive and optional
+                if (!param.required && getBooleanValue(param, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME)) {
+                    if (!addedOptionalImport) {
+                        imports.add(createMapping("import", "github.com/antihax/optional"));
+                        addedOptionalImport = true;
+                    }
+                    // We need to specially map Time type to the optionals package
+                    if (param.dataType == "time.Time") {
+                        param.vendorExtensions.put("x-optionalDataType", "Time");
+                        continue;
+                    }
+                    // Map optional type to dataType
+                    param.vendorExtensions.put("x-optionalDataType", param.dataType.substring(0, 1).toUpperCase() + param.dataType.substring(1));
+                }
+            }
+        }
+
+        // recursively add import for mapping one type to multiple imports
+        List<Map<String, String>> recursiveImports = (List<Map<String, String>>) objs.get("imports");
+        if (recursiveImports == null)
+            return objs;
+
+        ListIterator<Map<String, String>> listIterator = imports.listIterator();
+        while (listIterator.hasNext()) {
+            String _import = listIterator.next().get("import");
+            // if the import package happens to be found in the importMapping (key)
+            // add the corresponding import package to the list
+            if (importMapping.containsKey(_import)) {
+                listIterator.add(createMapping("import", importMapping.get(_import)));
+            }
+        }
+
+        return objs;
     }
 }
