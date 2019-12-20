@@ -1,0 +1,21 @@
+{{>partial_header}}
+package {{servicePackage}}
+
+{{#operations}}
+import (
+{{#hasModel}}
+    "{{invokerPackage}}/src/{{modelPackage}}"
+{{/hasModel}}
+    "context"
+){{#operation}}
+    {{#contents}}
+/**
+ * {{summary}}
+ * {{externalDocs}}
+ */
+func Service{{nickname}}({{>argumentsParams}}   ctx *context.Context)(*{{returnType}},error) {
+{{#returnType}}
+    data := {{returnType}}{}
+{{/returnType}}
+    return &data,nil
+}{{/contents}}{{/operation}}{{/operations}}

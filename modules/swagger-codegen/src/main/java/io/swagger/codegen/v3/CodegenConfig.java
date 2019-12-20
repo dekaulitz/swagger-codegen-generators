@@ -117,6 +117,12 @@ public interface CodegenConfig {
 
     Map<String, String> apiTestTemplateFiles();
 
+    Map<String, String> serviceApiTemplateFiles();
+
+    String serviceApiFileName(String templateName, String tag);
+
+    public Boolean generateServicePakcage();
+
     Map<String, String> modelTestTemplateFiles();
 
     Map<String, String> apiDocTemplateFiles();

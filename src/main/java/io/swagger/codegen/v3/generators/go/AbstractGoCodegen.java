@@ -24,6 +24,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
     protected String packageName = "swagger";
 
+
     public AbstractGoCodegen() {
         super();
 
@@ -191,7 +192,6 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     public String toApiFilename(String name) {
         // replace - with _ e.g. created-at => created_at
         name = name.replaceAll("-", "_"); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
-
         // e.g. PetApi.go => pet_api.go
         return "api_" + underscore(name);
     }

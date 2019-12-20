@@ -35,7 +35,6 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
     protected CodegenConfig config;
     protected ClientOptInput opts;
     protected OpenAPI openAPI;
-    protected String vModels;
     protected CodegenIgnoreProcessor ignoreProcessor;
     protected TemplateEngine templateEngine;
     private Boolean generateApis = null;
@@ -530,6 +529,21 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                     }
                 }
 
+                if(config.generateServicePakcage()){
+                    for (String templateName : config.serviceApiTemplateFiles().keySet()) {
+                        String filename = config.serviceApiFileName(templateName, tag);
+                        if (!config.shouldOverwrite(filename) && new File(filename).exists()) {
+                            LOGGER.info("Skipped overwriting " + filename);
+                            continue;
+                        }
+
+                        File written = processTemplateToFile(operation, templateName, filename);
+                        if (written != null) {
+                            files.add(written);
+                        }
+                    }
+                }
+
                 if (generateApiTests) {
                     // to generate api test files
                     for (String templateName : config.apiTestTemplateFiles().keySet()) {
@@ -546,7 +560,6 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                         }
                     }
                 }
-
 
                 if (generateApiDocumentation) {
                     // to generate api documentation files

@@ -20,6 +20,7 @@ public class CodegenConstants {
     /* /end System Properties */
 
     public static final String API_PACKAGE = "apiPackage";
+    public static final String SERVICE_PACKAGE = "servicePackage";
     public static final String API_PACKAGE_DESC = "package for generated api classes";
 
     public static final String MODEL_PACKAGE = "modelPackage";
@@ -230,7 +231,7 @@ public class CodegenConstants {
 
     public static final String REMOVE_OPERATION_ID_PREFIX = "removeOperationIdPrefix";
     public static final String REMOVE_OPERATION_ID_PREFIX_DESC = "Remove prefix of operationId, e.g. config_getId => getId";
-    
+
     public static final String USE_OAS2 = "useOas2";
     public static final String USE_OAS2_DESC = "use OpenAPI v2.0 (Swagger 1.5.x)";
 

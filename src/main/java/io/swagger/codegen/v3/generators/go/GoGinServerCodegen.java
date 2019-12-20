@@ -22,12 +22,17 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     protected int serverPort = 8080;
     protected String projectName = "swagger-server";
     protected String apiPath = "src/controllers";
+    protected String servicePath = "src/models";
     protected String vmodels = "src/vmodels";
     protected String utils = "utils";
     protected String configPath = "configurations";
     protected String modelPackage = "vmodels";
     protected String apiPackage = "controllers";
+    //viewmodel name
     protected String vModels = "vmodels";
+    protected String servicePackage = "models";
+    //for generating service file that related with api controller
+    protected Boolean generateServicePackage = true;
 
     /**
      * <p>Constructor for GoGinServerCodegen.</p>
@@ -47,7 +52,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
         modelTemplateFiles.put(
             "vmodel.mustache",
             ".go");
-
+        serviceApiTemplate.put("model-controller.mustache", ".go");
         /*
          * Api classes.  You can write classes for each Api file with the apiTemplateFiles map.
          * as with models, add multiple entries with different extensions for multiple files per
@@ -84,6 +89,16 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
         return "go-gin";
     }
 
+    @Override
+    public Boolean generateServicePakcage() {
+        return generateServicePackage;
+    }
+
+    @Override
+    public String servicePackage() {
+        return servicePackage;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -108,9 +123,11 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
         additionalProperties.put("apiVersion", apiVersion);
         additionalProperties.put("serverPort", serverPort);
         additionalProperties.put("apiPath", apiPath);
+        additionalProperties.put("servicePath", servicePath);
         additionalProperties.put(CodegenConstants.PACKAGE_NAME, packageName);
         additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
         additionalProperties.put(CodegenConstants.API_PACKAGE, apiPackage);
+        additionalProperties.put(CodegenConstants.SERVICE_PACKAGE, servicePackage);
 
 
         supportingFiles.add(new SupportingFile("gopkg.mustache", "", "Gopkg.toml"));
@@ -123,6 +140,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
 
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
     }
+
 
     /**
      * {@inheritDoc}
@@ -177,6 +195,9 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     public String apiFileFolder() {
         return outputFolder + File.separator + apiPackage().replace('.', File.separatorChar);
     }
+    public String serviceFileFolder(){
+        return outputFolder + File.separator + servicePath.replace('.', File.separatorChar);
+    }
 
     @Override
     public String toApiFilename(String name) {
@@ -186,6 +207,15 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
 
         // e.g. PetApi.go => pet_api.go
         return "controller_" + underscore(name);
+    }
+
+    @Override
+    public String toServiceFileName(String name) {
+        // replace - with _ e.g. created-at => created_at
+        name = name.replaceAll("-", "_"); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
+
+        // e.g. PetApi.go => pet_api.go
+        return "model_" + underscore(name);
     }
 
     @Override
@@ -219,8 +249,9 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
                 if (codegenParameter.getItems() != null)
                     if (codegenParameter.getItems().containerType.equals("array")) {
                         codegenParameter.dataType = codegenParameter.dataType.replace("[]", "[]vmodels.");
-                    } else
+                    } else {
                         codegenParameter.dataType = this.toModelImport(codegenParameter.dataType);
+                    }
                 else
                     codegenParameter.dataType = this.toModelImport(codegenParameter.dataType);
             });
