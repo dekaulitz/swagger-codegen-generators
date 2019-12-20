@@ -1,0 +1,43 @@
+package configurations
+
+import (
+    "github.com/joho/godotenv"
+    log "github.com/sirupsen/logrus"
+    "os"
+    "path"
+)
+
+type ConfigurationAction interface {
+}
+
+type Configuration struct {
+    Host        Host
+    Environment string
+}
+
+var (
+    //ConfigurationData contains all configuration data
+    ConfigurationData = &Configuration{}
+)
+
+func init() {
+
+ConfigurationData.Environment, _ = os.LookupEnv("GO_ENV")
+    if ConfigurationData.Environment == "" {
+        //if your using other path you can change it
+        ConfigurationData.Environment = "test"
+        _ = os.Setenv("CONF_PATH", os.Getenv("GOPATH")+"com.gitlab.dekaulitz")
+    }
+    err := godotenv.Load(os.ExpandEnv(path.Join(os.Getenv("CONF_PATH"), ".env."+ConfigurationData.Environment)))
+    if err != nil {
+        log.Panic("ErrorMapper loading .env file", err)
+    }
+    ConfigurationData.Host = Host{os.Getenv("SERVER_HOST"), os.Getenv("SERVER_PORT")}
+    log.SetFormatter(&log.JSONFormatter{})
+    log.SetOutput(os.Stdout)
+}
+
+//GetConfiguration Get the new configuration
+func GetConfiguration() *Configuration {
+    return ConfigurationData
+}

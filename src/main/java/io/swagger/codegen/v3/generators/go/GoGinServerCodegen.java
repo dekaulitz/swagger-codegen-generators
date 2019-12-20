@@ -1,30 +1,13 @@
 package io.swagger.codegen.v3.generators.go;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.swagger.codegen.v3.*;
-import io.swagger.codegen.v3.generators.examples.ExampleGenerator;
-import io.swagger.codegen.v3.generators.openapi.OpenAPIYamlGenerator;
-import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
-import io.swagger.v3.core.util.Constants;
-import io.swagger.v3.core.util.Json;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.examples.Example;
-import io.swagger.v3.oas.models.headers.Header;
-import io.swagger.v3.oas.models.media.*;
-import io.swagger.v3.oas.models.parameters.*;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static io.swagger.codegen.v3.CodegenConstants.IS_ENUM_EXT_NAME;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
 /**
@@ -41,6 +24,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     protected String apiPath = "src/controllers";
     protected String vmodels = "src/vmodels";
     protected String utils = "utils";
+    protected String configPath = "configurations";
     protected String modelPackage = "vmodels";
     protected String apiPackage = "controllers";
     protected String vModels = "vmodels";
@@ -133,6 +117,10 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
         supportingFiles.add(new SupportingFile("main.mustache", "", "main.go"));
         supportingFiles.add(new SupportingFile("routers.mustache", apiPath, "routers.go"));
         supportingFiles.add(new SupportingFile("logger.mustache", utils, "logger.go"));
+        supportingFiles.add(new SupportingFile("config.mustache", configPath, "configuration.go"));
+        supportingFiles.add(new SupportingFile("config-host.mustache", configPath, "host_configuration.go"));
+        supportingFiles.add(new SupportingFile("config.mustache", configPath, "configuration.go"));
+
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
     }
 
@@ -236,8 +224,10 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
                 else
                     codegenParameter.dataType = this.toModelImport(codegenParameter.dataType);
             });
-            // http method verb conversion (e.g. PUT => Put)
-//            operation.returnType = this.toModelName(operation.returnType);
+            operation.path = this.fittingPathWithGinFormat(operation);
+            operation.headerParams.forEach(codegenParameter -> {
+
+            });
         }
 
         // remove model imports to avoid error
@@ -312,5 +302,23 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
         }
 
         return objs;
+    }
+
+    //fitting with go gin new path
+    private String fittingPathWithGinFormat(CodegenOperation operation) {
+        String[] newReplacements = operation.path.split("/");
+        int i = 0;
+        boolean itsSame = false;
+        for (String newReplacement : newReplacements) {
+            if (!operation.pathParams.isEmpty()) {
+                for (CodegenParameter codegenParameter : operation.pathParams) {
+                    if (newReplacement.matches(".*" + codegenParameter.paramName + "*.")) {
+                        newReplacements[i] = ":" + codegenParameter.paramName;
+                    }
+                }
+            }
+            i++;
+        }
+        return String.join("/", newReplacements);
     }
 }

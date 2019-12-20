@@ -1,0 +1,6 @@
+{{#is this 'integer'}}
+{{paramName}}, _ := strconv.Atoi(c.Request.Header.Get("{{baseName}}"))
+{{/is}}
+{{#is this 'string'}}
+{{paramName}} := c.Request.Header.Get("{{baseName}}")
+{{/is}}
