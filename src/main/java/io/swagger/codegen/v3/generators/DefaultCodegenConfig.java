@@ -57,7 +57,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String inputSpec;
     protected String inputURL;
     protected String servicePackage;
-    protected Boolean generateServicePackage;
+    protected Boolean generateServicePackage=false;
     protected String outputFolder = StringUtils.EMPTY;
     protected Set<String> defaultIncludes = new HashSet<String>();
     protected Map<String, String> typeMapping = new HashMap<String, String>();
@@ -477,13 +477,16 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public String apiPackage() {
         return apiPackage;
     }
+
     public String servicePackage() {
         return servicePackage;
     }
+
     public Boolean generateServicePakcage() {
 
         return generateServicePackage;
     }
+
     public String fileSuffix() {
         return fileSuffix;
     }
@@ -543,9 +546,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public String apiFileFolder() {
         return outputFolder + File.separator + apiPackage().replace('.', File.separatorChar);
     }
+
     public String serviceFileFolder() {
         return outputFolder + File.separator + servicePackage().replace('.', File.separatorChar);
     }
+
     public String modelFileFolder() {
         return outputFolder + File.separator + modelPackage().replace('.', File.separatorChar);
     }
@@ -670,7 +675,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return toApiName(name);
     }
 
-    public String toServiceFileName(String name){
+    public String toServiceFileName(String name) {
         return toServiceName(name);
     }
 
@@ -1197,12 +1202,14 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
         return initialCaps(name) + "Api";
     }
+
     public String toServiceName(String name) {
         if (name.length() == 0) {
             return "DefaultService";
         }
         return initialCaps(name) + "Service";
     }
+
     /**
      * Output the proper model name (capitalized).
      * In case the name belongs to the TypeSystem it won't be renamed.
@@ -3291,10 +3298,12 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         String suffix = apiTemplateFiles().get(templateName);
         return apiFileFolder() + '/' + toApiFilename(tag) + suffix;
     }
+
     public String serviceApiFileName(String templateName, String tag) {
         String suffix = serviceApiTemplateFiles().get(templateName);
         return serviceFileFolder() + '/' + toServiceFileName(tag) + suffix;
     }
+
     /**
      * Return the full path and API documentation file
      *
