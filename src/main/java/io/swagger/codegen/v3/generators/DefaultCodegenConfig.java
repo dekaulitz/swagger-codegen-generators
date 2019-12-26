@@ -7,6 +7,8 @@ import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.examples.ExampleGenerator;
 import io.swagger.codegen.v3.generators.handlebars.*;
 import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
+import io.swagger.codegen.v3.plugins.repository.CodeGenRepositoryModel;
+import io.swagger.codegen.v3.plugins.repository.CodegenConfigPlugins;
 import io.swagger.codegen.v3.templates.HandlebarTemplateEngine;
 import io.swagger.codegen.v3.templates.MustacheTemplateEngine;
 import io.swagger.codegen.v3.templates.TemplateEngine;
@@ -45,7 +47,7 @@ import static io.swagger.codegen.v3.generators.CodegenHelper.*;
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.v3.utils.ModelUtils.processCodegenModels;
 
-public abstract class DefaultCodegenConfig implements CodegenConfig {
+public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implements CodegenConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCodegenConfig.class);
 
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
@@ -57,7 +59,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected String inputSpec;
     protected String inputURL;
     protected String servicePackage;
-    protected Boolean generateServicePackage=false;
+    protected Boolean generateServicePackage = false;
     protected String outputFolder = StringUtils.EMPTY;
     protected Set<String> defaultIncludes = new HashSet<String>();
     protected Map<String, String> typeMapping = new HashMap<String, String>();
@@ -67,6 +69,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     protected Map<String, String> importMapping = new HashMap<String, String>();
     protected String modelPackage = StringUtils.EMPTY;
     protected String apiPackage = StringUtils.EMPTY;
+
     protected String fileSuffix;
     protected String modelNamePrefix = StringUtils.EMPTY;
     protected String modelNameSuffix = StringUtils.EMPTY;
@@ -277,6 +280,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         }
     }
 
+
     private String findEnumName(int truncateIdx, Object value) {
         String enumName;
         if (truncateIdx == 0) {
@@ -478,6 +482,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return apiPackage;
     }
 
+    public String repositoryPackage() {
+        return repositoryPackage;
+    }
+
     public String servicePackage() {
         return servicePackage;
     }
@@ -515,6 +523,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return apiDocTemplateFiles;
     }
 
+    @Override
+    public Map<String, String> repositoryTemplateFiles() {
+        return repositoryFileTemplates;
+    }
+
     public Map<String, String> modelDocTemplateFiles() {
         return modelDocTemplateFiles;
     }
@@ -549,6 +562,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     public String serviceFileFolder() {
         return outputFolder + File.separator + servicePackage().replace('.', File.separatorChar);
+    }
+
+    public String repositoryFileFolder() {
+        return outputFolder + File.separator + repositoryPackage().replace('.', File.separatorChar);
     }
 
     public String modelFileFolder() {
@@ -655,6 +672,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         this.allowUnicodeIdentifiers = allowUnicodeIdentifiers;
     }
 
+
     /**
      * Return the regular expression/JSON schema pattern (http://json-schema.org/latest/json-schema-validation.html#anchor33)
      *
@@ -679,6 +697,10 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return toServiceName(name);
     }
 
+    public String toRepositoryFileName(String name) {
+        return toRepositoryName(name);
+    }
+
     /**
      * Return the file name of the Api Documentation
      *
@@ -698,6 +720,7 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public String toApiTestFilename(String name) {
         return toApiName(name) + "Test";
     }
+
 
     /**
      * Return the variable name in the Api
@@ -1210,6 +1233,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         return initialCaps(name) + "Service";
     }
 
+    public String toRepositoryName(String name) {
+        if (name.length() == 0) {
+            return "DefaultService";
+        }
+        return initialCaps(name) + "Repository";
+    }
+
     /**
      * Output the proper model name (capitalized).
      * In case the name belongs to the TypeSystem it won't be renamed.
@@ -1259,11 +1289,15 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenModel.classFilename = toModelFilename(name);
         codegenModel.modelJson = Json.pretty(schema);
         codegenModel.externalDocumentation = schema.getExternalDocs();
+
         if (schema.getExtensions() != null && !schema.getExtensions().isEmpty()) {
             codegenModel.getVendorExtensions().putAll(schema.getExtensions());
         }
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, typeAliases.containsKey(name));
-
+        //this is for mocking the repository
+        if (codegenModel.getVendorExtensions().containsKey(X_REPOSITORY)) {
+            this.postProcessRepositories(codegenModel);
+        }
         codegenModel.discriminator = schema.getDiscriminator();
 
         if (schema.getXml() != null) {
@@ -3130,6 +3164,97 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             }
         }
     }
+    public void postProcessRepositories(CodegenModel codegenModel) {
+        codegenModel.repository = Json.mapper().convertValue(codegenModel.getVendorExtensions().get(X_REPOSITORY), CodeGenRepositoryModel.class);
+        CodeGenRepositoryModel repository = codegenModel.repository;
+        repository.varRepositories = addRepositoryVars(codegenModel);
+    }
+    public List<CodegenProperty> addRepositoryVars(CodegenModel codegenModel) {
+        List<CodegenProperty> codegenProperties =new ArrayList<CodegenProperty>();;
+        List<Map.Entry<String, Schema>> propertyList = new ArrayList<Map.Entry<String, Schema>>(codegenModel.getRepository().getProperties().entrySet());
+        final int totalCount = propertyList.size();
+        for (int i = 0; i < totalCount; i++) {
+            Map.Entry<String, Schema> entry = propertyList.get(i);
+
+            final String key = entry.getKey();
+            final Schema propertySchema = entry.getValue();
+
+            if (propertySchema == null) {
+                LOGGER.warn("null property for " + key);
+                continue;
+            }
+            final CodegenProperty codegenProperty = fromProperty(key, propertySchema);
+            if (propertySchema.get$ref() != null) {
+                if (this.openAPI == null) {
+                    LOGGER.warn("open api utility object was not properly set.");
+                } else {
+                    OpenAPIUtil.addPropertiesFromRef(this.openAPI, propertySchema, codegenProperty);
+                }
+            }
+            if(codegenProperty.getVendorExtensions().containsKey(X_REPOSITORY_PRIMARY_KEY)){
+                codegenProperty.isPrimaryKey= (Boolean) codegenProperty.getVendorExtensions().get(X_REPOSITORY_PRIMARY_KEY);
+            }
+            if(codegenProperty.getVendorExtensions().containsKey(X_REPOSITORY_AUTOINCREMENT)){
+                codegenProperty.autoIncrement= (Boolean) codegenProperty.getVendorExtensions().get(X_REPOSITORY_AUTOINCREMENT);
+            }
+
+            boolean hasRequired = getBooleanValue(codegenModel.repository, HAS_REQUIRED_EXT_NAME) || codegenProperty.required;
+            boolean hasOptional = getBooleanValue(codegenModel.repository, HAS_OPTIONAL_EXT_NAME) || !codegenProperty.required;
+
+            codegenModel.getVendorExtensions().put(HAS_REQUIRED_EXT_NAME, hasRequired);
+            codegenModel.getVendorExtensions().put(HAS_OPTIONAL_EXT_NAME, hasOptional);
+
+            boolean isEnum = getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME);
+            if (isEnum) {
+                // FIXME: if supporting inheritance, when called a second time for allProperties it is possible for
+                // m.hasEnums to be set incorrectly if allProperties has enumerations but properties does not.
+                codegenModel.getVendorExtensions().put(CodegenConstants.HAS_ENUMS_EXT_NAME, true);
+            }
+
+            // set model's hasOnlyReadOnly to false if the property is read-only
+            if (!getBooleanValue(codegenProperty, CodegenConstants.IS_READ_ONLY_EXT_NAME)) {
+                codegenModel.getVendorExtensions().put(HAS_ONLY_READ_ONLY_EXT_NAME, Boolean.FALSE);
+            }
+
+            if (i + 1 != totalCount) {
+                codegenProperty.getVendorExtensions().put(CodegenConstants.HAS_MORE_EXT_NAME, Boolean.TRUE);
+                // check the next entry to see if it's read only
+                if (!Boolean.TRUE.equals(propertyList.get(i + 1).getValue().getReadOnly())) {
+                    codegenProperty.getVendorExtensions().put(CodegenConstants.HAS_MORE_NON_READ_ONLY_EXT_NAME, Boolean.TRUE);
+                }
+            }
+
+            if (getBooleanValue(codegenProperty, CodegenConstants.IS_CONTAINER_EXT_NAME)) {
+                addImport(codegenModel, typeMapping.get("array"));
+            }
+
+            addImport(codegenModel, codegenProperty.baseType);
+            CodegenProperty innerCp = codegenProperty;
+            while (innerCp != null) {
+                addImport(codegenModel, innerCp.complexType);
+                innerCp = innerCp.items;
+            }
+            codegenProperties.add(codegenProperty);
+
+            // if required, add to the list "requiredVars"
+            if (Boolean.TRUE.equals(codegenProperty.required)) {
+                codegenModel.requiredVars.add(codegenProperty);
+            } else { // else add to the list "optionalVars" for optional property
+                codegenModel.optionalVars.add(codegenProperty);
+            }
+
+            // if readonly, add to readOnlyVars (list of properties)
+            if (getBooleanValue(codegenProperty, CodegenConstants.IS_READ_ONLY_EXT_NAME)) {
+                codegenModel.readOnlyVars.add(codegenProperty);
+            } else { // else add to readWriteVars (list of properties)
+                // FIXME: readWriteVars can contain duplicated properties. Debug/breakpoint here while running C# generator (Dog and Cat models)
+                codegenModel.readWriteVars.add(codegenProperty);
+            }
+        }
+
+        return codegenProperties;
+}
+
 
     /**
      * Determine all of the types in the model definitions that are aliases of
@@ -3302,6 +3427,11 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
     public String serviceApiFileName(String templateName, String tag) {
         String suffix = serviceApiTemplateFiles().get(templateName);
         return serviceFileFolder() + '/' + toServiceFileName(tag) + suffix;
+    }
+
+    public String repositoryFileName(String templateName, String tag) {
+        String suffix = repositoryTemplateFiles().get(templateName);
+        return repositoryFileFolder() + '/' + toRepositoryFileName(tag) + suffix;
     }
 
     /**

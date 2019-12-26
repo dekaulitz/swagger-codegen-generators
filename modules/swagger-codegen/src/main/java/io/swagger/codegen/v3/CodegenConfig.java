@@ -2,6 +2,7 @@ package io.swagger.codegen.v3;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.samskivert.mustache.Mustache;
+import io.swagger.codegen.v3.plugins.repository.PluginsCodegenConfig;
 import io.swagger.codegen.v3.templates.TemplateEngine;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface CodegenConfig {
+public interface CodegenConfig extends PluginsCodegenConfig {
     CodegenType getTag();
 
     String getName();

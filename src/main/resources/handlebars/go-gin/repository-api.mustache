@@ -1,0 +1,39 @@
+{{>partial_header}}
+package {{repositoryPackage}}{{#models}}{{#repository}}
+
+import (
+    "github.com/go-xorm/xorm"
+{{#generateDate}}
+    "time"
+{{/generateDate}}
+)
+
+
+
+{{#externalDocs}}
+/*
+ * {{description}}
+ * {{url}}
+ *
+ */
+{{/externalDocs}}
+
+type {{classname}} struct {
+    {{#varRepositories}}
+    {{#description}}
+    // {{{description}}}{{/description}}
+    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}*{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}' {{#isPrimaryKey}}pk{{/isPrimaryKey}} {{#autoIncrement}}autoincr{{/autoIncrement}}" json:"{{baseName}}{{^required}},omitempty{{/required}}"`
+    {{/varRepositories}}
+    {{jancok}}
+    {{#generateDate}}
+    CreatedAt   time.Time `xorm:"'created_at' created" json:"created_at"`
+
+    UpdatedAt   time.Time `xorm:"'updated_at' updated" json:"updated_at"`
+    {{/generateDate}}
+}
+
+func  (model *{{classname}}) GetTableName() string {
+    return "{{tableName}}"
+}
+{{/repository}}
+{{/models}}

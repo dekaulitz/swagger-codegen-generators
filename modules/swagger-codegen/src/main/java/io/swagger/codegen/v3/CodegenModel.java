@@ -1,11 +1,12 @@
 package io.swagger.codegen.v3;
 
+import io.swagger.codegen.v3.plugins.repository.CodeGenPluginsModel;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.media.Discriminator;
 
 import java.util.*;
 
-public class CodegenModel extends CodegenObject {
+public class CodegenModel extends CodeGenPluginsModel {
 
     public String parent, parentSchema;
     public List<String> interfaces;

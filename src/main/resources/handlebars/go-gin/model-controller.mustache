@@ -1,6 +1,5 @@
 {{>partial_header}}
 package {{servicePackage}}
-
 {{#operations}}
 import (
 {{#hasModel}}
@@ -13,7 +12,7 @@ import (
  * {{summary}}
  * {{externalDocs}}
  */
-func Service{{nickname}}({{>argumentsParams}}   ctx *context.Context)(*{{returnType}},error) {
+func {{nickname}}({{>argumentsParams}}   ctx *context.Context)(*{{returnType}},error) {
 {{#returnType}}
     data := {{returnType}}{}
 {{/returnType}}

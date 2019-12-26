@@ -7,6 +7,11 @@ import static io.swagger.codegen.v3.VendorExtendable.PREFIX_IS;
  * A class for storing constants that are used throughout the project.
  */
 public class CodegenConstants {
+    //custom property fahmi
+    public static final String X_REPOSITORY = "x-repository";
+    public static final String X_REPOSITORY_PRIMARY_KEY = "x-repository-primary-key";
+    public static final String X_REPOSITORY_AUTOINCREMENT = "x-repository-auto-increment";
+
     /* System Properties */
     // NOTE: We may want to move these to a separate class to avoid confusion or modification.
     public static final String APIS = "apis";
@@ -20,11 +25,16 @@ public class CodegenConstants {
     /* /end System Properties */
 
     public static final String API_PACKAGE = "apiPackage";
-    public static final String SERVICE_PACKAGE = "servicePackage";
     public static final String API_PACKAGE_DESC = "package for generated api classes";
 
     public static final String MODEL_PACKAGE = "modelPackage";
     public static final String MODEL_PACKAGE_DESC = "package for generated models";
+
+    public static final String SERVICE_PACKAGE = "servicePackage";
+    public static final String SERVICE_PACKAGE_DESC = "package for generated services";
+
+    public static final String REPOSITORY_PACKAGE = "repositoryPackage";
+    public static final String REPOSITORY_PACKAGE_DESC = "package for generated repositories";
 
     public static final String TEMPLATE_DIR = "templateDir";
     public static final String TEMPLATE_VERSION = "templateVersion";
@@ -163,6 +173,7 @@ public class CodegenConstants {
     public static final String DOTNET_FRAMEWORK_DESC = "The target .NET framework version.";
 
     public static enum MODEL_PROPERTY_NAMING_TYPE {camelCase, PascalCase, snake_case, original}
+
     public static enum ENUM_PROPERTY_NAMING_TYPE {camelCase, PascalCase, snake_case, original, UPPERCASE}
 
     public static final String ENUM_PROPERTY_NAMING = "enumPropertyNaming";

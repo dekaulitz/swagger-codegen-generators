@@ -23,6 +23,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     protected String projectName = "swagger-server";
     protected String apiPath = "src/controllers";
     protected String servicePath = "src/models";
+    protected String repositoryPath="src/repositories";
     protected String vmodels = "src/vmodels";
     protected String utils = "utils";
     protected String configPath = "configurations";
@@ -31,6 +32,8 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     //viewmodel name
     protected String vModels = "vmodels";
     protected String servicePackage = "models";
+    protected String repositoryPackage = "repositories";
+
     //for generating service file that related with api controller
     protected Boolean generateServicePackage = true;
 
@@ -53,6 +56,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
             "vmodel.mustache",
             ".go");
         serviceApiTemplate.put("model-controller.mustache", ".go");
+        repositoryFileTemplates.put("repository-api.mustache",".go");
         /*
          * Api classes.  You can write classes for each Api file with the apiTemplateFiles map.
          * as with models, add multiple entries with different extensions for multiple files per
@@ -126,6 +130,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
         additionalProperties.put("servicePath", servicePath);
         additionalProperties.put(CodegenConstants.PACKAGE_NAME, packageName);
         additionalProperties.put(CodegenConstants.MODEL_PACKAGE, modelPackage);
+        additionalProperties.put(CodegenConstants.REPOSITORY_PACKAGE, repositoryPackage);
         additionalProperties.put(CodegenConstants.API_PACKAGE, apiPackage);
         additionalProperties.put(CodegenConstants.SERVICE_PACKAGE, servicePackage);
 
@@ -200,6 +205,11 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     }
 
     @Override
+    public String repositoryFileFolder() {
+        return outputFolder + File.separator + repositoryPath.replace('.', File.separatorChar);
+    }
+
+    @Override
     public String toApiFilename(String name) {
 
         // replace - with _ e.g. created-at => created_at
@@ -216,6 +226,15 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
 
         // e.g. PetApi.go => pet_api.go
         return "model_" + underscore(name);
+    }
+
+    @Override
+    public String toRepositoryFileName(String name) {
+        // replace - with _ e.g. created-at => created_at
+        name = name.replaceAll("-", "_"); // FIXME: a parameter should not be assigned. Also declare the methods parameters as 'final'.
+
+        // e.g. PetApi.go => pet_api.go
+        return "repository_" + underscore(name);
     }
 
     @Override

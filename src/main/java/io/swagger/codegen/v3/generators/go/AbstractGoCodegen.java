@@ -34,7 +34,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
             Arrays.asList(
                 "map",
                 "array")
-            );
+        );
 
         languageSpecificPrimitives = new HashSet<>(
             Arrays.asList(
@@ -52,7 +52,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
                 "complex128",
                 "rune",
                 "byte")
-            );
+        );
 
         instantiationTypes.clear();
         /*instantiationTypes.put("array", "GoArray");
@@ -84,10 +84,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
         cliOptions.clear();
         cliOptions.add(new CliOption(CodegenConstants.PACKAGE_NAME, "Go package name (convention: lowercase).")
-                .defaultValue("swagger"));
+            .defaultValue("swagger"));
 
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC)
-                .defaultValue(Boolean.TRUE.toString()));
+            .defaultValue(Boolean.TRUE.toString()));
     }
 
     /**
@@ -161,6 +161,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     public String toModelFilename(String name) {
         return toModel("model_" + name);
     }
+
     public String toModel(String name) {
         if (!StringUtils.isEmpty(modelNamePrefix)) {
             name = modelNamePrefix + "_" + name;
@@ -181,7 +182,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         // model name starts with number
         if (name.matches("^\\d.*")) {
             LOGGER.warn(name + " (model name starts with number) cannot be used as model name. Renamed to "
-                    + ("model_" + name));
+                + ("model_" + name));
             name = "model_" + name; // e.g. 200Response => Model200Response (after camelize)
         }
 
@@ -223,7 +224,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
 
     @Override
     public String getTypeDeclaration(Schema schema) {
-        if(schema instanceof ArraySchema) {
+        if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
             Schema inner = arraySchema.getItems();
             return "[]" + getTypeDeclaration(inner);
@@ -239,10 +240,10 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         if (typeMapping.containsKey(schemaType)) {
             return typeMapping.get(schemaType);
         }
-        if(typeMapping.containsValue(schemaType)) {
+        if (typeMapping.containsValue(schemaType)) {
             return schemaType;
         }
-        if(languageSpecificPrimitives.contains(schemaType)) {
+        if (languageSpecificPrimitives.contains(schemaType)) {
             return schemaType;
         }
         return toModelName(schemaType);
@@ -252,9 +253,9 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
     public String getSchemaType(Schema schema) {
         String schemaType = super.getSchemaType(schema);
         String type;
-        if(typeMapping.containsKey(schemaType)) {
+        if (typeMapping.containsKey(schemaType)) {
             type = typeMapping.get(schemaType);
-            if(languageSpecificPrimitives.contains(type)) {
+            if (languageSpecificPrimitives.contains(type)) {
                 return type;
             }
         } else {
@@ -270,7 +271,7 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         // method name cannot use reserved keyword, e.g. return
         if (isReservedWord(sanitizedOperationId)) {
             LOGGER.warn(operationId + " (reserved word) cannot be used as method name. Renamed to "
-                    + camelize("call_" + operationId));
+                + camelize("call_" + operationId));
             sanitizedOperationId = "call_" + sanitizedOperationId;
         }
         return camelize(sanitizedOperationId);
@@ -411,10 +412,62 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         return postProcessModelsEnum(objs);
     }
 
+//    @Override
+//    public CodeGenRepository postProcessRepositories(Map<String, Object> objs) {
+//        List<Map<String,Map<String,Object>>> repository = (List<Map<String, Map<String, Object>>>) objs.get("models");
+//        if (repository.get(0).containsKey("repository")) {
+//            List<Map<String, String>> imports = (List<Map<String, String>>) objs.get("imports");
+//            final String prefix = modelPackage();
+//            Iterator<Map<String, String>> iterator = imports.iterator();
+//            while (iterator.hasNext()) {
+//                String _import = iterator.next().get("import");
+//                if (_import.startsWith(prefix))
+//                    iterator.remove();
+//            }
+//
+//            boolean addedTimeImport = false;
+//            boolean addedOSImport = false;
+//            for (Map<String, Map<String, Object>> m : repository) {
+//                Object v = m.get("model");
+//                if (v instanceof CodegenModel) {
+//                    CodegenModel model = (CodegenModel) v;
+//                    for (CodegenProperty param : model.vars) {
+//                        if (!addedTimeImport && param.baseType == "time.Time") {
+//                            imports.add(createMapping("import", "time"));
+//                            addedTimeImport = true;
+//                        }
+//                        if (!addedOSImport && param.baseType == "*os.File") {
+//                            imports.add(createMapping("import", "os"));
+//                            addedOSImport = true;
+//                        }
+//                    }
+//                }
+//            }
+//            // recursively add import for mapping one type to multiple imports
+//            List<Map<String, String>> recursiveImports = (List<Map<String, String>>) objs.get("imports");
+//            if (recursiveImports == null)
+//                return objs;
+//
+//            ListIterator<Map<String, String>> listIterator = imports.listIterator();
+//            while (listIterator.hasNext()) {
+//                String _import = listIterator.next().get("import");
+//                // if the import package happens to be found in the importMapping (key)
+//                // add the corresponding import package to the list
+//                if (importMapping.containsKey(_import)) {
+//                    listIterator.add(createMapping("import", importMapping.get(_import)));
+//                }
+//            }
+//
+//            return postProcessModelsEnum(objs);
+//        }
+//        // remove model imports to avoid error
+//        return objs;
+//    }
+
     @Override
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        OpenAPI openAPI = (OpenAPI)objs.get("openapi");
-        if(openAPI != null) {
+        OpenAPI openAPI = (OpenAPI) objs.get("openapi");
+        if (openAPI != null) {
             try {
                 objs.put("swagger-yaml", Yaml.mapper().writeValueAsString(openAPI));
             } catch (JsonProcessingException e) {

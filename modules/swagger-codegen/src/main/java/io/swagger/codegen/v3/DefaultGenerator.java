@@ -45,6 +45,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
     private Boolean generateModelTests = null;
     private Boolean generateModelDocumentation = null;
     private Boolean generateSwaggerMetadata = true;
+
     private Boolean useOas2 = false;
     private String basePath;
     private String basePathWithoutHost;
@@ -309,6 +310,12 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
         }
     }
 
+    /**
+     * #GENERATE MODEL
+     *
+     * @param files
+     * @param allModels
+     */
     private void generateModels(List<File> files, List<Object> allModels) {
 
         if (!generateModels) {
@@ -428,6 +435,25 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                         files.add(written);
                     }
                 }
+
+//                //@FIX IT FAILING ON GENRATE REPO
+                for (String repoTemplate : config.repositoryTemplateFiles().keySet()) {
+                    List<Map<String,Object>> model= (List<Map<String, Object>>) models.get("models");
+                    CodegenModel  repo= (CodegenModel) model.get(0).get("model");
+                    if(repo.repository!=null){
+                        String suffix = config.repositoryTemplateFiles().get(repoTemplate);
+                        String filename = config.repositoryFileFolder() + File.separator + config.toRepositoryFileName(modelName) + suffix;
+                        if (!config.shouldOverwrite(filename)) {
+                            LOGGER.info("Skipped overwriting " + filename);
+                            continue;
+                        }
+                        File written = processTemplateToFile(models, repoTemplate, filename);
+                        if (written != null) {
+                            files.add(written);
+                        }
+                    }
+                }
+
                 if (generateModelTests) {
                     generateModelTests(files, models, modelName);
                 }
@@ -435,6 +461,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                     // to generate model documentation files
                     generateModelDocumentation(files, models, modelName);
                 }
+
             } catch (Exception e) {
                 throw new RuntimeException("Could not generate model '" + modelName + "'", e);
             }
@@ -529,7 +556,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                     }
                 }
 
-                if(config.generateServicePakcage()){
+                if (config.generateServicePakcage()) {
                     for (String templateName : config.serviceApiTemplateFiles().keySet()) {
                         String filename = config.serviceApiFileName(templateName, tag);
                         if (!config.shouldOverwrite(filename) && new File(filename).exists()) {
@@ -587,6 +614,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
         }
 
     }
+
 
     private void generateSupportingFiles(List<File> files, Map<String, Object> bundle) {
         if (!generateSupportingFiles) {
@@ -763,6 +791,10 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
         return bundle;
     }
 
+    /**
+     * @return
+     * @apiNote this the main function for generate
+     */
     @Override
     public List<File> generate() {
 
@@ -1023,6 +1055,10 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                 CodegenModel anyOfModel = (CodegenModel) cm.vendorExtensions.get("anyOf-model");
                 mo.put("anyOf-model", anyOfModel);
             }
+            if (cm.vendorExtensions.containsKey("x-repository")) {
+                mo.put("repository", cm.repository);
+            }
+
             models.add(mo);
 
             allImports.addAll(cm.imports);

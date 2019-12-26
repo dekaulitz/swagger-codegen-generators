@@ -7,6 +7,26 @@ public class CodegenProperty extends CodegenObject implements Cloneable {
           datatypeWithEnum, dataFormat, name, min, max, defaultValue, defaultValueWithParam,
           baseType, containerType, title;
 
+    //custom property
+    public Boolean autoIncrement;
+    public Boolean isPrimaryKey;
+
+    public Boolean getAutoIncrement() {
+        return autoIncrement;
+    }
+
+    public void setAutoIncrement(Boolean autoIncrement) {
+        this.autoIncrement = autoIncrement;
+    }
+
+    public Boolean getIsPrimaryKey() {
+        return isPrimaryKey;
+    }
+
+    public void setIsPrimaryKey(Boolean primaryKey) {
+        isPrimaryKey = primaryKey;
+    }
+
     /** The 'description' string without escape charcters needed by some programming languages/targets */
     public String unescapedDescription;
 
