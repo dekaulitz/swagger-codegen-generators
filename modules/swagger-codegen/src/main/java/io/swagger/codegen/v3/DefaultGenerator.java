@@ -438,9 +438,9 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
 
 //                //@FIX IT FAILING ON GENRATE REPO
                 for (String repoTemplate : config.repositoryTemplateFiles().keySet()) {
-                    List<Map<String,Object>> model= (List<Map<String, Object>>) models.get("models");
-                    CodegenModel  repo= (CodegenModel) model.get(0).get("model");
-                    if(repo.repository!=null){
+                    List<Map<String, Object>> model = (List<Map<String, Object>>) models.get("models");
+                    CodegenModel repo = (CodegenModel) model.get(0).get("model");
+                    if (repo.repository != null) {
                         String suffix = config.repositoryTemplateFiles().get(repoTemplate);
                         String filename = config.repositoryFileFolder() + File.separator + config.toRepositoryFileName(modelName) + suffix;
                         if (!config.shouldOverwrite(filename)) {
@@ -520,7 +520,9 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                 operation.put("classVarName", config.toApiVarName(tag));
                 operation.put("importPath", config.toApiImport(tag));
                 operation.put("classFilename", config.toApiFilename(tag));
-
+                if (config.generateService())
+                    //@TODO add service import package
+                    operation.put("importServices", config.importServices(ops));
                 if (!config.vendorExtensions().isEmpty()) {
                     operation.put("vendorExtensions", config.vendorExtensions());
                 }
@@ -556,7 +558,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                     }
                 }
 
-                if (config.generateServicePakcage()) {
+                if (config.generateService()) {
                     for (String templateName : config.serviceApiTemplateFiles().keySet()) {
                         String filename = config.serviceApiFileName(templateName, tag);
                         if (!config.shouldOverwrite(filename) && new File(filename).exists()) {
@@ -941,7 +943,6 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                 CodegenOperation codegenOperation = config.fromOperation(resourcePath, httpMethod, operation, schemas, openAPI);
                 codegenOperation.tags = new ArrayList<>(tags);
                 config.addOperationToGroup(config.sanitizeTag(tag.getName()), resourcePath, operation, codegenOperation, operations);
-
                 List<SecurityRequirement> securities = operation.getSecurity();
                 if (securities != null && securities.isEmpty()) {
                     continue;

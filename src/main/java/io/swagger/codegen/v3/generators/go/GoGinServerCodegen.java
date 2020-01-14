@@ -23,7 +23,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     protected String projectName = "swagger-server";
     protected String apiPath = "src/controllers";
     protected String servicePath = "src/models";
-    protected String repositoryPath="src/repositories";
+    protected String repositoryPath = "src/repositories";
     protected String vmodels = "src/vmodels";
     protected String utils = "utils";
     protected String configPath = "configurations";
@@ -56,7 +56,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
             "vmodel.mustache",
             ".go");
         serviceApiTemplate.put("model-controller.mustache", ".go");
-        repositoryFileTemplates.put("repository-api.mustache",".go");
+        repositoryFileTemplates.put("repository-api.mustache", ".go");
         /*
          * Api classes.  You can write classes for each Api file with the apiTemplateFiles map.
          * as with models, add multiple entries with different extensions for multiple files per
@@ -94,13 +94,18 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     }
 
     @Override
-    public Boolean generateServicePakcage() {
+    public Boolean generateService() {
         return generateServicePackage;
     }
 
     @Override
     public String servicePackage() {
         return servicePackage;
+    }
+
+
+    public String serviceImportMapping() {
+        return this.servicePath;
     }
 
     /**
@@ -200,7 +205,8 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
     public String apiFileFolder() {
         return outputFolder + File.separator + apiPackage().replace('.', File.separatorChar);
     }
-    public String serviceFileFolder(){
+
+    public String serviceFileFolder() {
         return outputFolder + File.separator + servicePath.replace('.', File.separatorChar);
     }
 

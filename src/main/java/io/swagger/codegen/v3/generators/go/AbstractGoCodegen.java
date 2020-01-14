@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,9 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         instantiationTypes.put("map", "GoMap");*/
 
         typeMapping.clear();
-        typeMapping.put("integer", "int32");
+//        typeMapping.put("integer", "int32");
+//        typeMapping.put("long", "int64");
+        typeMapping.put("integer", "int");
         typeMapping.put("long", "int64");
         typeMapping.put("number", "float32");
         typeMapping.put("float", "float32");
@@ -89,6 +92,17 @@ public abstract class AbstractGoCodegen extends DefaultCodegenConfig {
         cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.HIDE_GENERATION_TIMESTAMP_DESC)
             .defaultValue(Boolean.TRUE.toString()));
     }
+
+    @Override
+    public List<Map<String, String>> importServices(List<CodegenOperation> ops) {
+        List<Map<String, String>> importServices = new ArrayList<>();
+        Map<String, String> im = new LinkedHashMap<>();
+        im.put("importService", "models");
+        im.put("operationId", ops.get(0).operationId);
+        importServices.add(0,im);
+        return importServices;
+    }
+
 
     /**
      * Escapes a reserved word as defined in the `reservedWords` array. Handle escaping

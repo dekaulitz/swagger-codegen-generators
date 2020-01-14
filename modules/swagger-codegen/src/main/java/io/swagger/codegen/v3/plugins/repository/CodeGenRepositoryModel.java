@@ -1,6 +1,7 @@
 package io.swagger.codegen.v3.plugins.repository;
 
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.plugins.CodeGenPluginsModel;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.media.Schema;
 

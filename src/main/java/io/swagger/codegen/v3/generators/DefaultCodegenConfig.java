@@ -58,8 +58,7 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
     protected OpenAPI unflattenedOpenAPI;
     protected String inputSpec;
     protected String inputURL;
-    protected String servicePackage;
-    protected Boolean generateServicePackage = false;
+
     protected String outputFolder = StringUtils.EMPTY;
     protected Set<String> defaultIncludes = new HashSet<String>();
     protected Map<String, String> typeMapping = new HashMap<String, String>();
@@ -76,8 +75,6 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
     protected String testPackage = StringUtils.EMPTY;
     protected Map<String, String> apiTemplateFiles = new HashMap<String, String>();
     protected Map<String, String> modelTemplateFiles = new HashMap<String, String>();
-    //add model service related with api controller
-    protected Map<String, String> serviceApiTemplate = new HashMap<String, String>();
 
     protected Map<String, String> apiTestTemplateFiles = new HashMap<String, String>();
     protected Map<String, String> modelTestTemplateFiles = new HashMap<String, String>();
@@ -486,14 +483,7 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
         return repositoryPackage;
     }
 
-    public String servicePackage() {
-        return servicePackage;
-    }
 
-    public Boolean generateServicePakcage() {
-
-        return generateServicePackage;
-    }
 
     public String fileSuffix() {
         return fileSuffix;
@@ -540,9 +530,7 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
         return apiTestTemplateFiles;
     }
 
-    public Map<String, String> serviceApiTemplateFiles() {
-        return serviceApiTemplate;
-    }
+
 
     public Map<String, String> modelTestTemplateFiles() {
         return modelTestTemplateFiles;
@@ -560,9 +548,7 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
         return outputFolder + File.separator + apiPackage().replace('.', File.separatorChar);
     }
 
-    public String serviceFileFolder() {
-        return outputFolder + File.separator + servicePackage().replace('.', File.separatorChar);
-    }
+
 
     public String repositoryFileFolder() {
         return outputFolder + File.separator + repositoryPackage().replace('.', File.separatorChar);
@@ -2224,10 +2210,6 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
                 codegenOperation.imports.add(i);
             }
         }
-/**
- *
- *
- */
         codegenOperation.bodyParam = bodyParam;
         codegenOperation.httpMethod = httpMethod.toUpperCase();
 
@@ -3432,6 +3414,10 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
     public String repositoryFileName(String templateName, String tag) {
         String suffix = repositoryTemplateFiles().get(templateName);
         return repositoryFileFolder() + '/' + toRepositoryFileName(tag) + suffix;
+    }
+
+    public String serviceFileFolder() {
+        return outputFolder + File.separator + servicePackage().replace('.', File.separatorChar);
     }
 
     /**

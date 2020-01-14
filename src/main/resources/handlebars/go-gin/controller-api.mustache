@@ -8,14 +8,25 @@ import (
     "encoding/json"
     "github.com/gin-gonic/gin"{{#hasModel}}
     "{{invokerPackage}}/src/{{modelPackage}}"
+    {{#importServices}}
+    "{{invokerPackage}}/src/{{importService}}"
+    {{/importServices}}
+
 {{/hasModel}}
 ){{#operation}}
     {{#contents}}
-/**
- * {{summary}}
- * {{externalDocs}}
+{{#summary}}
+
+/*
+  {{summary}}
+  {{#externalDocs}}
+  {{description}}
+  {{url}}
+  {{/externalDocs}}
  */
+{{/summary}}
 func {{nickname}}(c *gin.Context) {
+    ctx := c.Request.Context()
 {{#headerParams}}
     {{>headerParam}}
 {{/headerParams}}
@@ -26,8 +37,8 @@ func {{nickname}}(c *gin.Context) {
     {{>queryParam}}
 {{/queryParams}}
 {{#bodyParams}}
-    var body {{dataType}}
-    jsonFail := c.BindJSON(&body)
+    var vmodel {{dataType}}
+    jsonFail := c.BindJSON(&vmodel)
     if jsonFail != nil {
         panic(jsonFail)
     }
@@ -37,9 +48,14 @@ func {{nickname}}(c *gin.Context) {
 {{/produces}}
     c.Writer.WriteHeader(http.StatusOK)
 {{#returnType}}
-    var responseBody {{returnType}}
+    responseBody,err := {{#importServices}}{{importService}}.{{nickname}}({{>argumentsParamsService}}&ctx){{/importServices}}
+    if (err != nil) {
+        panic(err)
+    }
     res,_:=json.Marshal(responseBody)
     c.Writer.Write(res)
 {{/returnType}}
     return
 }{{/contents}}{{/operation}}{{/operations}}
+
+

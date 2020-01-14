@@ -1,13 +1,14 @@
 package io.swagger.codegen.v3;
 
 
+import io.swagger.codegen.v3.plugins.CodeGenPluginsModel;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.tags.Tag;
 
 import java.util.*;
 
-public class CodegenOperation extends CodegenObject {
+public class CodegenOperation extends CodeGenPluginsModel {
     public final List<CodegenProperty> responseHeaders = new ArrayList<CodegenProperty>();
     public boolean returnTypeIsPrimitive, returnSimpleType, subresourceOperation;
     public String path, operationId, returnType, httpMethod, returnBaseType, returnContainer, summary, unescapedNotes, notes, baseName, defaultResponse, testPath;
