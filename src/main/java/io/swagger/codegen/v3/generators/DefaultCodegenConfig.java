@@ -3179,7 +3179,20 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
             if(codegenProperty.getVendorExtensions().containsKey(X_REPOSITORY_AUTOINCREMENT)){
                 codegenProperty.autoIncrement= (Boolean) codegenProperty.getVendorExtensions().get(X_REPOSITORY_AUTOINCREMENT);
             }
+            //@TODO we add for composite model
+            if(propertySchema.get$ref() !=null){
+                codegenProperty.varsItems=OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(propertySchema.get$ref()),this.openAPI);
+                codegenProperty.varsItems.getProperties().forEach((o, o2) -> {
+                    Schema schema=(Schema) o2;
+                    if(schema.get$ref()!=null){
+                        Map<String,Schema> moreCompositeModel=new HashMap<>();
+                        moreCompositeModel.put((String) o,addMoreCompositeProperties(OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(schema.get$ref()),this.openAPI)));
+                        schema.setProperties(moreCompositeModel);
+                    }
+                    schema.type(getTypeDeclaration(schema));
+                });
 
+            }
             boolean hasRequired = getBooleanValue(codegenModel.repository, HAS_REQUIRED_EXT_NAME) || codegenProperty.required;
             boolean hasOptional = getBooleanValue(codegenModel.repository, HAS_OPTIONAL_EXT_NAME) || !codegenProperty.required;
 
@@ -3236,7 +3249,19 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
 
         return codegenProperties;
 }
-
+    //add more composite model
+    private Schema addMoreCompositeProperties(Schema schemaFromName){
+        schemaFromName.getProperties().forEach((o, o2) -> {
+            Schema schema=(Schema) o2;
+            if(schema.get$ref()!=null){
+                Map<String,Schema> moreCompositeModel=new HashMap<>();
+                moreCompositeModel.put((String) o,addMoreCompositeProperties(OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(schema.get$ref()),this.openAPI)));
+                schema.setProperties(moreCompositeModel);
+            }
+            schema.type(getTypeDeclaration(schema));
+        });
+        return schemaFromName;
+    }
 
     /**
      * Determine all of the types in the model definitions that are aliases of
@@ -3686,6 +3711,8 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
 
     @Override
     public void addHandlebarHelpers(Handlebars handlebars) {
+        //set for infinite loops
+        handlebars.setInfiniteLoops(true);
         handlebars.registerHelper(IsHelper.NAME, new IsHelper());
         handlebars.registerHelper(HasHelper.NAME, new HasHelper());
         handlebars.registerHelper(IsNotHelper.NAME, new IsNotHelper());
@@ -4041,8 +4068,10 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
         } else {
             if (CodegenConstants.HANDLEBARS_TEMPLATE_ENGINE.equalsIgnoreCase(templateEngineKey)) {
                 templateEngine = new HandlebarTemplateEngine(this);
+
             } else {
                 templateEngine = new MustacheTemplateEngine(this);
+
             }
         }
     }

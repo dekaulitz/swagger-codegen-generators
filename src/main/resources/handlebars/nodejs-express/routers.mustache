@@ -1,0 +1,17 @@
+const express = require('express')
+let cookieParser = require('cookie-parser')
+let app = express()
+
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
+app.use(express.json())
+{{#apiInfo}}{{#apis}}
+app.use(require('../controllers/{{classFilename}}'))
+{{/apis}}{{/apiInfo}}
+//forward to error handler
+app.use(function (err, req, res, next) {
+    console.log(err)
+    return res.status(500).send(err)
+})
+
+module.exports = app

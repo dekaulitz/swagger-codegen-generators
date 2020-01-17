@@ -1,0 +1,36 @@
+const express = require('express')
+const routers = express.Router()
+{{#importServices}}
+const service = require('../{{importService}}')
+{{/importServices}}
+
+{{#operations}}
+{{#operation}}
+{{#contents}}
+{{#summary}}
+/*
+{{summary}}
+{{#externalDocs}}
+    {{description}}
+    {{url}}
+{{/externalDocs}}
+*/
+{{/summary}}
+routers.{{httpMethod}}('{{path}}', (req, res, next) => {
+{{#importServices}}
+    service.{{nickname}}(req, (err, data) => {
+    if (err !== null) {
+        return next(err)
+    }
+    return res.status(200).send(data)
+    })
+{{/importServices}}
+{{^importServices}}
+    return res.status(200).send({})
+{{/importServices}}
+})
+
+{{/contents}}
+{{/operation}}
+{{/operations}}
+module.exports = routers

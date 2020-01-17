@@ -1,0 +1,48 @@
+{{#externalDocs}}
+/*
+    {{description}}
+    {{url}}
+*/
+{{/externalDocs}}
+{{#models}}{{#repository}}
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+{{#varRepositories}}
+{{#varsItems}}
+
+let {{datatype}} = new Schema({
+    {{#each properties}}
+    {{#properties}}
+    {{#each properties}}
+
+    {{@key}}: {
+        {{> recurse}}
+    },
+    {{/each}}
+    {{/properties}}
+
+    {{^properties}}
+    {{@key}}: {type: {{{type}}} },
+    {{/properties}}
+    {{/each}}
+},{ strict: true, versionKey: false })
+{{/varsItems}}
+{{/varRepositories}}
+
+let {{classname}} = new Schema({
+{{#varRepositories}}
+    {{#description}}
+// {{{description}}}{{/description}}
+    {{name}}: {type: {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} },
+{{/varRepositories}}
+{{jancok}}
+{{#generateDate}}
+    created_at: { type: Date },
+    updated_at: { type: Date, default: Date.now }
+{{/generateDate}}
+},{ strict: true, versionKey: false })
+
+const  {{classname}}Repository = mongoose.model('{{tableName}}', {{classname}})
+module.exports = {{classname}}Repository
+{{/repository}}
+{{/models}}

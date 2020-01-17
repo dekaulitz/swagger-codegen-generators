@@ -1,5 +1,7 @@
 package io.swagger.codegen.v3;
 
+import io.swagger.v3.oas.models.media.Schema;
+
 import java.util.*;
 
 public class CodegenProperty extends CodegenObject implements Cloneable {
@@ -10,6 +12,19 @@ public class CodegenProperty extends CodegenObject implements Cloneable {
     //custom property
     public Boolean autoIncrement;
     public Boolean isPrimaryKey;
+
+
+    public Schema getVarsItems() {
+        return varsItems;
+    }
+
+    public void setVarsItems(Schema varsItems) {
+        this.varsItems = varsItems;
+    }
+
+    public Schema varsItems;
+
+
 
     public Boolean getAutoIncrement() {
         return autoIncrement;

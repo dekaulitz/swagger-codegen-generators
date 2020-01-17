@@ -1,0 +1,37 @@
+const {{baseName}} = {}
+{{#operations}}
+{{#operation}}
+{{#contents}}
+{{#summary}}
+/*
+{{summary}}
+{{#externalDocs}}
+    {{description}}
+    {{url}}
+{{/externalDocs}}
+*/
+{{/summary}}
+{{baseName}}.{{operationId}} = (req, callback) => {
+    try {
+    {{#bodyParams}}
+        let body = req.body
+    {{/bodyParams}}
+        let data = {}
+    {{#pathParams}}
+        let {{paramName}} = req.path("{{baseName}}");
+    {{/pathParams}}
+    {{#headerParams}}
+        let {{paramName}} = req.header("{{baseName}}");
+    {{/headerParams}}
+    {{#queryParams}}
+        let {{paramName}} = req.query.params("{{baseName}}");
+    {{/queryParams}}
+        return callback(null, data)
+    } catch (e) {
+        return callback(e, null)
+    }
+}
+{{/contents}}
+{{/operation}}
+{{/operations}}
+module.exports = {{baseName}}

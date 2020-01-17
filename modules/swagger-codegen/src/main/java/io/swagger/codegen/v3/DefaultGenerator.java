@@ -436,7 +436,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                     }
                 }
 
-//                //@FIX IT FAILING ON GENRATE REPO
+//                //@FIX IT FAILING ON repository
                 for (String repoTemplate : config.repositoryTemplateFiles().keySet()) {
                     List<Map<String, Object>> model = (List<Map<String, Object>>) models.get("models");
                     CodegenModel repo = (CodegenModel) model.get(0).get("model");

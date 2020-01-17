@@ -1,0 +1,16 @@
+FROM node:alpine
+ADD package.json /home/apps/
+WORKDIR /home/apps
+#COPY ./Dockerfile/api-service.service /etc/systemd/system
+COPY ./ ./
+RUN npm install
+ADD . /home/apps/
+#run npm install
+#COPY api-service.service /etc/system.d/service/
+#RUN systemctl api-service start
+#run npm install -g npm
+#npm run devstart
+CMD ["npm", "start"]
+#run npm install generator/package.json
+#run node public
+EXPOSE $PORT

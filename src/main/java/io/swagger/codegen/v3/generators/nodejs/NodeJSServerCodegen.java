@@ -86,7 +86,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
         additionalProperties.put("serverPort", serverPort);
         additionalProperties.put("implFolder", implFolder);
 
-        supportingFiles.add(new SupportingFile("writer.mustache", ("utils").replace(".", "/"), "writer.js"));
+//        supportingFiles.add(new SupportingFile("writer.mustache", ("utils").replace(".", "/"), "writer.js"));
 
         cliOptions.add(CliOption.newBoolean(GOOGLE_CLOUD_FUNCTIONS,
                 "When specified, it will generate the code which runs within Google Cloud Functions "
@@ -281,147 +281,147 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
         return opsByPathList;
     }
 
-    @Override
-    public void processOpts() {
-        super.processOpts();
-        /*
-         * Template Location.  This is the location which templates will be read from.  The generator
-         * will use the resource stream to attempt to read the templates.
-         */
-        embeddedTemplateDir = templateDir = getTemplateDir();
+//    @Override
+//    public void processOpts() {
+//        super.processOpts();
+//        /*
+//         * Template Location.  This is the location which templates will be read from.  The generator
+//         * will use the resource stream to attempt to read the templates.
+//         */
+//        embeddedTemplateDir = templateDir = getTemplateDir();
+//
+//        if (additionalProperties.containsKey(GOOGLE_CLOUD_FUNCTIONS)) {
+//            setGoogleCloudFunctions(
+//                    Boolean.valueOf(additionalProperties.get(GOOGLE_CLOUD_FUNCTIONS).toString()));
+//        }
+//
+//        if (additionalProperties.containsKey(EXPORTED_NAME)) {
+//            setExportedName((String)additionalProperties.get(EXPORTED_NAME));
+//        }
+//
+//        /*
+//         * Supporting Files.  You can write single files for the generator with the
+//         * entire object tree available.  If the input file has a suffix of `.mustache
+//         * it will be processed by the template engine.  Otherwise, it will be copied
+//         */
+//        // supportingFiles.add(new SupportingFile("controller.mustache",
+//        //   "controllers",
+//        //   "controller.js")
+//        // );
+//        supportingFiles.add(new SupportingFile("swagger.mustache", "api", "swagger.yaml"));
+//        if (getGoogleCloudFunctions()) {
+//            writeOptional(outputFolder, new SupportingFile("index-gcf.mustache", "", "index.js"));
+//        } else {
+//            writeOptional(outputFolder, new SupportingFile("index.mustache", "", "index.js"));
+//        }
+//        writeOptional(outputFolder, new SupportingFile("package.mustache", "", "package.json"));
+//        writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
+////        if (System.getProperty("noservice") == null) {
+////            apiTemplateFiles.put(
+////                    "service.mustache",   // the template to use
+////                    "Service.js");       // the extension for each file to write
+////        }
+//    }
 
-        if (additionalProperties.containsKey(GOOGLE_CLOUD_FUNCTIONS)) {
-            setGoogleCloudFunctions(
-                    Boolean.valueOf(additionalProperties.get(GOOGLE_CLOUD_FUNCTIONS).toString()));
-        }
+//    @Override
+//    public void preprocessOpenAPI(OpenAPI openAPI) {
+//        URL url = URLPathUtil.getServerURL(openAPI);
+//        String host = URLPathUtil.LOCAL_HOST;
+//        String port = "8080";
+//        String basePath = null;
+//        if (url != null) {
+////            port = String.valueOf(url.getPort()); TODO: fix port resolving in URL.
+//            host = url.getHost();
+//            basePath = url.getPath();
+//        }
+//        this.additionalProperties.put("serverPort", port);
+//
+//        if (openAPI.getInfo() != null) {
+//            Info info = openAPI.getInfo();
+//            if (info.getTitle() != null) {
+//                // when info.title is defined, use it for projectName
+//                // used in package.json
+//                projectName = info.getTitle()
+//                        .replaceAll("[^a-zA-Z0-9]", "-")
+//                        .replaceAll("^[-]*", "")
+//                        .replaceAll("[-]*$", "")
+//                        .replaceAll("[-]{2,}", "-")
+//                        .toLowerCase();
+//                this.additionalProperties.put("projectName", projectName);
+//            }
+//        }
+//
+//        if (getGoogleCloudFunctions()) {
+//            // Note that Cloud Functions don't allow customizing port name, simply checking host
+//            // is good enough.
+//            if (!host.endsWith(".cloudfunctions.net")) {
+//                LOGGER.warn("Host " + host + " seems not matching with cloudfunctions.net URL.");
+//            }
+//            if (!additionalProperties.containsKey(EXPORTED_NAME)) {
+//                if (basePath == null || basePath.equals("/")) {
+//                    LOGGER.warn("Cannot find the exported name properly. Using 'openapi' as the exported name");
+//                    basePath = "/openapi";
+//                }
+//                additionalProperties.put(EXPORTED_NAME, basePath.substring(1));
+//            }
+//        }
+//
+//        // need vendor extensions for x-swagger-router-controller
+//        Paths paths = openAPI.getPaths();
+//        if(paths != null) {
+//            for(String pathname : paths.keySet()) {
+//                PathItem path = paths.get(pathname);
+//                Map<PathItem.HttpMethod, Operation> operationMap = path.readOperationsMap();
+//                if(operationMap != null) {
+//                    for(PathItem.HttpMethod method : operationMap.keySet()) {
+//                        Operation operation = operationMap.get(method);
+//                        String tag = "default";
+//                        if(operation.getTags() != null && operation.getTags().size() > 0) {
+//                            tag = toApiName(operation.getTags().get(0));
+//                        }
+//                        if(operation.getOperationId() == null) {
+//                            operation.setOperationId(getOrGenerateOperationId(operation, pathname, method.toString()));
+//                        }
+//
+//                        if (operation.getExtensions() == null) {
+//                            operation.setExtensions(new HashMap<>());
+//                        }
+//                        if(operation.getExtensions() != null && operation.getExtensions().get("x-swagger-router-controller") == null) {
+//                            operation.getExtensions().put("x-swagger-router-controller", sanitizeTag(tag));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-        if (additionalProperties.containsKey(EXPORTED_NAME)) {
-            setExportedName((String)additionalProperties.get(EXPORTED_NAME));
-        }
-
-        /*
-         * Supporting Files.  You can write single files for the generator with the
-         * entire object tree available.  If the input file has a suffix of `.mustache
-         * it will be processed by the template engine.  Otherwise, it will be copied
-         */
-        // supportingFiles.add(new SupportingFile("controller.mustache",
-        //   "controllers",
-        //   "controller.js")
-        // );
-        supportingFiles.add(new SupportingFile("swagger.mustache", "api", "swagger.yaml"));
-        if (getGoogleCloudFunctions()) {
-            writeOptional(outputFolder, new SupportingFile("index-gcf.mustache", "", "index.js"));
-        } else {
-            writeOptional(outputFolder, new SupportingFile("index.mustache", "", "index.js"));
-        }
-        writeOptional(outputFolder, new SupportingFile("package.mustache", "", "package.json"));
-        writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
-        if (System.getProperty("noservice") == null) {
-            apiTemplateFiles.put(
-                    "service.mustache",   // the template to use
-                    "Service.js");       // the extension for each file to write
-        }
-    }
-
-    @Override
-    public void preprocessOpenAPI(OpenAPI openAPI) {
-        URL url = URLPathUtil.getServerURL(openAPI);
-        String host = URLPathUtil.LOCAL_HOST;
-        String port = "8080";
-        String basePath = null;
-        if (url != null) {
-//            port = String.valueOf(url.getPort()); TODO: fix port resolving in URL.
-            host = url.getHost();
-            basePath = url.getPath();
-        }
-        this.additionalProperties.put("serverPort", port);
-
-        if (openAPI.getInfo() != null) {
-            Info info = openAPI.getInfo();
-            if (info.getTitle() != null) {
-                // when info.title is defined, use it for projectName
-                // used in package.json
-                projectName = info.getTitle()
-                        .replaceAll("[^a-zA-Z0-9]", "-")
-                        .replaceAll("^[-]*", "")
-                        .replaceAll("[-]*$", "")
-                        .replaceAll("[-]{2,}", "-")
-                        .toLowerCase();
-                this.additionalProperties.put("projectName", projectName);
-            }
-        }
-
-        if (getGoogleCloudFunctions()) {
-            // Note that Cloud Functions don't allow customizing port name, simply checking host
-            // is good enough.
-            if (!host.endsWith(".cloudfunctions.net")) {
-                LOGGER.warn("Host " + host + " seems not matching with cloudfunctions.net URL.");
-            }
-            if (!additionalProperties.containsKey(EXPORTED_NAME)) {
-                if (basePath == null || basePath.equals("/")) {
-                    LOGGER.warn("Cannot find the exported name properly. Using 'openapi' as the exported name");
-                    basePath = "/openapi";
-                }
-                additionalProperties.put(EXPORTED_NAME, basePath.substring(1));
-            }
-        }
-
-        // need vendor extensions for x-swagger-router-controller
-        Paths paths = openAPI.getPaths();
-        if(paths != null) {
-            for(String pathname : paths.keySet()) {
-                PathItem path = paths.get(pathname);
-                Map<PathItem.HttpMethod, Operation> operationMap = path.readOperationsMap();
-                if(operationMap != null) {
-                    for(PathItem.HttpMethod method : operationMap.keySet()) {
-                        Operation operation = operationMap.get(method);
-                        String tag = "default";
-                        if(operation.getTags() != null && operation.getTags().size() > 0) {
-                            tag = toApiName(operation.getTags().get(0));
-                        }
-                        if(operation.getOperationId() == null) {
-                            operation.setOperationId(getOrGenerateOperationId(operation, pathname, method.toString()));
-                        }
-
-                        if (operation.getExtensions() == null) {
-                            operation.setExtensions(new HashMap<>());
-                        }
-                        if(operation.getExtensions() != null && operation.getExtensions().get("x-swagger-router-controller") == null) {
-                            operation.getExtensions().put("x-swagger-router-controller", sanitizeTag(tag));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        OpenAPI openAPI = (OpenAPI) objs.get("openAPI");
-        if(openAPI != null) {
-            try {
-                SimpleModule module = new SimpleModule();
-                module.addSerializer(Double.class, new JsonSerializer<Double>() {
-                    @Override
-                    public void serialize(Double val, JsonGenerator jgen,
-                                          SerializerProvider provider) throws IOException, JsonProcessingException {
-                        jgen.writeNumber(new BigDecimal(val));
-                    }
-                });
-                objs.put("swagger-yaml", Yaml.mapper().registerModule(module).writeValueAsString(openAPI));
-            } catch (JsonProcessingException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
-        for (Map<String, Object> operations : getOperations(objs)) {
-            @SuppressWarnings("unchecked")
-            List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
-
-            List<Map<String, Object>> opsByPathList = sortOperationsByPath(ops);
-            operations.put("operationsByPath", opsByPathList);
-        }
-        return super.postProcessSupportingFileData(objs);
-    }
+//    @Override
+//    public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
+//        OpenAPI openAPI = (OpenAPI) objs.get("openAPI");
+//        if(openAPI != null) {
+//            try {
+//                SimpleModule module = new SimpleModule();
+//                module.addSerializer(Double.class, new JsonSerializer<Double>() {
+//                    @Override
+//                    public void serialize(Double val, JsonGenerator jgen,
+//                                          SerializerProvider provider) throws IOException, JsonProcessingException {
+//                        jgen.writeNumber(new BigDecimal(val));
+//                    }
+//                });
+//                objs.put("swagger-yaml", Yaml.mapper().registerModule(module).writeValueAsString(openAPI));
+//            } catch (JsonProcessingException e) {
+//                LOGGER.error(e.getMessage(), e);
+//            }
+//        }
+//        for (Map<String, Object> operations : getOperations(objs)) {
+//            @SuppressWarnings("unchecked")
+//            List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
+//
+//            List<Map<String, Object>> opsByPathList = sortOperationsByPath(ops);
+//            operations.put("operationsByPath", opsByPathList);
+//        }
+//        return super.postProcessSupportingFileData(objs);
+//    }
 
     @Override
     public String removeNonNameElementToCamelCase(String name) {

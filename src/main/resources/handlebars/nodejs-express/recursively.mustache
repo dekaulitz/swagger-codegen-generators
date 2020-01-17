@@ -1,0 +1,9 @@
+{{#each properties}}
+    {{#properties}}
+{{> recursively}}
+    {{/properties}}
+    {{^properties}}
+        
+{{@key}}: {type: {{{type}}} },
+    {{/properties}}
+{{/each}}
