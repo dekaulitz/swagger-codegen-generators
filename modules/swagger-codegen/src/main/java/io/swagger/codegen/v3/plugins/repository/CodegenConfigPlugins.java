@@ -85,4 +85,21 @@ public class CodegenConfigPlugins implements PluginsCodegenConfig {
     public Boolean generateService() {
         return generateServicePackage;
     }
+
+    //fitting with new path :id
+    protected String fittingPathParams(CodegenOperation operation) {
+        String[] newReplacements = operation.path.split("/");
+        int i = 0;
+        for (String newReplacement : newReplacements) {
+            if (!operation.pathParams.isEmpty()) {
+                for (CodegenParameter codegenParameter : operation.pathParams) {
+                    if (newReplacement.matches(".*" + codegenParameter.paramName + "*.")) {
+                        newReplacements[i] = ":" + codegenParameter.paramName;
+                    }
+                }
+            }
+            i++;
+        }
+        return String.join("/", newReplacements);
+    }
 }

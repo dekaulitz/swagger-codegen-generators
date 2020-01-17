@@ -3,6 +3,7 @@ package io.swagger.codegen.v3.generators.nodejs;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenOperation;
+import io.swagger.codegen.v3.CodegenParameter;
 import io.swagger.codegen.v3.SupportingFile;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;

@@ -220,7 +220,7 @@ public class NodeJSServerCodegen extends DefaultCodegenConfig {
         List<CodegenOperation> operations = (List<CodegenOperation>) objectMap.get("operation");
         for (CodegenOperation operation : operations) {
             operation.httpMethod = operation.httpMethod.toLowerCase();
-
+            operation.path = this.fittingPathParams(operation);
             List<CodegenParameter> params = operation.allParams;
             if (params != null && params.size() == 0) {
                 operation.allParams = null;
