@@ -147,7 +147,7 @@ public class GoGinServerCodegen extends AbstractGoCodegen {
         supportingFiles.add(new SupportingFile("config.mustache", configPath, "configuration.go"));
         supportingFiles.add(new SupportingFile("config-host.mustache", configPath, "host_configuration.go"));
         supportingFiles.add(new SupportingFile("config.mustache", configPath, "configuration.go"));
-
+        supportingFiles.add(new SupportingFile("swagger.mustache", "docs", "swagger.yml"));
         writeOptional(outputFolder, new SupportingFile("README.mustache", "", "README.md"));
     }
 
