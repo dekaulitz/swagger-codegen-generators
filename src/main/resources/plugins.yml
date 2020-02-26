@@ -1,0 +1,7 @@
+#put your plugin information
+generate:
+  model:
+  apis:
+  controller:
+  x-repository:
+

@@ -2,7 +2,7 @@ package io.swagger.codegen.v3.generators.options;
 
 import com.google.common.collect.ImmutableMap;
 import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.generators.java.JavaClientCodegen;
+import io.swagger.codegen.v3.generators.examples.java.JavaClientCodegen;
 
 import java.util.Map;
 

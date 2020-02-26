@@ -4,6 +4,9 @@ import io.swagger.codegen.v3.CodegenArgument;
 import io.swagger.codegen.v3.CodegenConfig;
 import io.swagger.codegen.v3.CodegenConfigLoader;
 import io.swagger.codegen.v3.generators.cmd.Generate;
+import io.swagger.codegen.v3.generators.cmd.PluginRunner;
+import io.swagger.codegen.v3.generators.modules.PluginConfigLoader;
+import io.swagger.codegen.v3.plugins.Plugins;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
@@ -28,15 +31,16 @@ import java.util.stream.Collectors;
  * <p>
  * Command line interface for swagger codegen use `swagger-codegen-cli.jar help` for more info
  *
- * @since 2.1.3-M1
  * @author ovo
  * @version $Id: $Id
+ * @since 2.1.3-M1
  */
 public class SwaggerCodegen {
 
 
     private static Logger LOGGER = LoggerFactory.getLogger(SwaggerCodegen.class);
     private static String GENERATE_COMMAND_NAME = "Generate";
+    private static String PLUGIN_COMMAND_NAME = "plugin-generate";
 
     /**
      * <p>main.</p>
@@ -45,7 +49,7 @@ public class SwaggerCodegen {
      */
     public static void main(String[] args) {
         final String oas3 = CLIHelper.loadResourceOAS3File();
-        if(StringUtils.isBlank(oas3)) {
+        if (StringUtils.isBlank(oas3)) {
             LOGGER.error("Could not load resource file.");
             return;
         }
@@ -55,14 +59,14 @@ public class SwaggerCodegen {
 
         final ArgumentParser codegenParser = ArgumentParsers.newFor("swagger-codegen").build();
         final Subparsers subparsers = codegenParser.addSubparsers()
-                .title("commands")
-                .help("additional help")
-                .metavar("Command");
+            .title("commands")
+            .help("additional help")
+            .metavar("Command");
 
         final Map<String, Schema> commandMap = new HashMap<>();
         List<CodegenArgument> codegenArguments = null;
 
-        for(String schemaName : schemaNames) {
+        for (String schemaName : schemaNames) {
             final Schema schema = schemaMap.get(schemaName);
             final String command = CLIHelper.getCommand(schemaName, schema);
             final Map<String, Schema> schemaProperties = schema.getProperties();
@@ -70,51 +74,75 @@ public class SwaggerCodegen {
 
             commandMap.put(command, schema);
 
-            if(schemaProperties == null || schemaProperties.isEmpty()) {
+            if (schemaProperties == null || schemaProperties.isEmpty()) {
                 LOGGER.debug(String.format("there are not options for command '%s'", command));
                 continue;
             }
             for (String propertyName : schemaProperties.keySet()) {
                 final Schema property = schemaProperties.get(propertyName);
                 final Map<String, Object> extensions = property.getExtensions();
-                if(!CLIHelper.containsOptionExtensions(extensions)) {
+                if (!CLIHelper.containsOptionExtensions(extensions)) {
                     LOGGER.warn(String.format("there are not option extensions for property '%s?", propertyName));
                     continue;
                 }
                 String[] arguments = CLIHelper.getArguments(extensions);
                 final Argument argument = parser.addArgument(arguments)
-                        .type(CLIHelper.getClass(property))
-                        .help(property.getDescription())
-                        .metavar(StringUtils.EMPTY);
+                    .type(CLIHelper.getClass(property))
+                    .help(property.getDescription())
+                    .metavar(StringUtils.EMPTY);
 
-                if(property instanceof BooleanSchema) {
+                if (property instanceof BooleanSchema) {
                     argument.nargs("?").setConst(true);
-                } else if(property instanceof ArraySchema) {
+                } else if (property instanceof ArraySchema) {
                     argument.nargs("*");
                 }
             }
-            if (command.equalsIgnoreCase(GENERATE_COMMAND_NAME)) {
-                String language = CLIHelper.detectlanguage(args);
-                if (StringUtils.isNotBlank(language)) {
-                    CodegenConfig config = CodegenConfigLoader.forName(language);
-                    codegenArguments = config.readLanguageArguments();
-                    if (codegenArguments != null && !codegenArguments.isEmpty()) {
-                        for (CodegenArgument codegenArgument : codegenArguments) {
-                            String[] arguments = CLIHelper.getArguments(codegenArgument);
-                            Class clazz = "boolean".equalsIgnoreCase(codegenArgument.getType()) ? Boolean.class : String.class;
-                            final Argument argument = parser.addArgument(arguments)
+            if (args[0].equalsIgnoreCase(GENERATE_COMMAND_NAME))
+                if (command.equalsIgnoreCase(GENERATE_COMMAND_NAME)) {
+                    String language = CLIHelper.detectlanguage(args);
+                    if (StringUtils.isNotBlank(language)) {
+                        CodegenConfig config = CodegenConfigLoader.forName(language);
+                        codegenArguments = config.readLanguageArguments();
+                        if (codegenArguments != null && !codegenArguments.isEmpty()) {
+                            for (CodegenArgument codegenArgument : codegenArguments) {
+                                String[] arguments = CLIHelper.getArguments(codegenArgument);
+                                Class clazz = "boolean".equalsIgnoreCase(codegenArgument.getType()) ? Boolean.class : String.class;
+                                final Argument argument = parser.addArgument(arguments)
                                     .type(clazz)
                                     .help(codegenArgument.getDescription())
                                     .metavar(StringUtils.EMPTY);
-                            if (codegenArgument.getType().equalsIgnoreCase("boolean")) {
-                                argument.nargs("?").setConst(true);
-                            } else if(codegenArgument.getArray() != null && codegenArgument.getArray()) {
-                                argument.nargs("*");
+                                if (codegenArgument.getType().equalsIgnoreCase("boolean")) {
+                                    argument.nargs("?").setConst(true);
+                                } else if (codegenArgument.getArray() != null && codegenArgument.getArray()) {
+                                    argument.nargs("*");
+                                }
                             }
                         }
                     }
                 }
-            }
+            if (args[0].equalsIgnoreCase(PLUGIN_COMMAND_NAME))
+                if (command.equalsIgnoreCase(PLUGIN_COMMAND_NAME)) {
+                    String language = CLIHelper.detectlanguage(args);
+                    if (StringUtils.isNotBlank(language)) {
+                        Plugins config = PluginConfigLoader.forName(language);
+                        codegenArguments = config.readLanguageArguments();
+                        if (codegenArguments != null && !codegenArguments.isEmpty()) {
+                            for (CodegenArgument codegenArgument : codegenArguments) {
+                                String[] arguments = CLIHelper.getArguments(codegenArgument);
+                                Class clazz = "boolean".equalsIgnoreCase(codegenArgument.getType()) ? Boolean.class : String.class;
+                                final Argument argument = parser.addArgument(arguments)
+                                    .type(clazz)
+                                    .help(codegenArgument.getDescription())
+                                    .metavar(StringUtils.EMPTY);
+                                if (codegenArgument.getType().equalsIgnoreCase("boolean")) {
+                                    argument.nargs("?").setConst(true);
+                                } else if (codegenArgument.getArray() != null && codegenArgument.getArray()) {
+                                    argument.nargs("*");
+                                }
+                            }
+                        }
+                    }
+                }
         }
         final Map<String, Object> inputArgs = new HashMap<>();
         try {
@@ -124,17 +152,17 @@ public class SwaggerCodegen {
             return;
         }
         final String userInputCommand = CLIHelper.detectCommand(args);
-        if(userInputCommand == null) {
+        if (userInputCommand == null) {
             LOGGER.error("No command found.");
             return;
         }
         final Schema commandSchema = commandMap.get(userInputCommand);
-        if(commandSchema == null) {
+        if (commandSchema == null) {
             LOGGER.error(String.format("There are not schema related to command '%s'", userInputCommand));
             return;
         }
         final Map<String, Object> extensions = commandSchema.getExtensions();
-        if(extensions == null || extensions.isEmpty() || extensions.get("x-class-name") == null) {
+        if (extensions == null || extensions.isEmpty() || extensions.get("x-class-name") == null) {
             LOGGER.error("Extensions are required to run command. i.e: 'x-class-name'");
             return;
         }
@@ -148,24 +176,24 @@ public class SwaggerCodegen {
 
             if (codegenArguments != null && !codegenArguments.isEmpty() && commandObject instanceof Generate) {
                 codegenArguments = codegenArguments.stream()
-                        .filter(codegenArgument -> {
-                            final String option = CLIHelper.fixOptionName(codegenArgument.getOption());
-                            final String optionValue = String.valueOf(inputArgs.get(option));
+                    .filter(codegenArgument -> {
+                        final String option = CLIHelper.fixOptionName(codegenArgument.getOption());
+                        final String optionValue = String.valueOf(inputArgs.get(option));
 
-                            if (StringUtils.isNotBlank(optionValue) && !"null".equalsIgnoreCase(optionValue)) {
-                                codegenArgument.setValue(optionValue);
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        })
-                        .collect(Collectors.toList());
+                        if (StringUtils.isNotBlank(optionValue) && !"null".equalsIgnoreCase(optionValue)) {
+                            codegenArgument.setValue(optionValue);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    })
+                    .collect(Collectors.toList());
 
-                Generate generateCommand = (Generate) commandObject;
+                PluginRunner generateCommand = (PluginRunner) commandObject;
                 generateCommand.setCodegenArguments(codegenArguments);
             }
 
-            if(commandObject instanceof Runnable) {
+            if (commandObject instanceof Runnable) {
                 new Thread(((Runnable) commandObject)).start();
             }
 

@@ -1,0 +1,33 @@
+package {{repositoryPackage}};
+{{#models}}{{#repository}}
+import {{package}}.entities.{{modelName}};
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import java.io.Serializable;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+{{#externalDocs}}
+/*
+* {{description}}
+* {{url}}
+* table name {{tableName}}
+*/
+{{/externalDocs}}
+public class {{classname}} implements Serializable {
+
+{{#varRepositories}}
+    {{#description}}
+        // {{{description}}}{{/description}}
+   private {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} {{name}} ;
+{{/varRepositories}}
+{{/repository}}
+{{/models}}
+
+}
+
+

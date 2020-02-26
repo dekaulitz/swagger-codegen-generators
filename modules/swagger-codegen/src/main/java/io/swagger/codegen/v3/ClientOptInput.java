@@ -1,6 +1,7 @@
 package io.swagger.codegen.v3;
 
 import io.swagger.codegen.v3.auth.AuthParser;
+import io.swagger.codegen.v3.plugins.Plugins;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.core.models.AuthorizationValue;
 
@@ -11,6 +12,26 @@ public class ClientOptInput {
     private ClientOpts opts;
     private OpenAPI openAPI;
     private List<AuthorizationValue> auths;
+    //add new plugin extension
+    private String[] extensionPlugin;
+    //add new plugins engine
+    private Plugins plugins;
+
+    public Plugins getPlugins() {
+        return plugins;
+    }
+
+    public void setPlugins(Plugins plugins) {
+        this.plugins = plugins;
+    }
+
+    public String[] getExtensionPlugin() {
+        return extensionPlugin;
+    }
+
+    public void setExtensionPlugin(String[] extensionPlugin) {
+        this.extensionPlugin = extensionPlugin;
+    }
 
     public ClientOptInput openAPI(OpenAPI openAPI) {
         this.setOpenAPI(openAPI);

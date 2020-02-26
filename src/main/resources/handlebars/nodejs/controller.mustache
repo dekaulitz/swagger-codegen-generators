@@ -1,0 +1,38 @@
+const express = require('express')
+const router = express.Router()
+
+{{#operations}}
+var {{classname}} = require('../{{implFolder}}/{{classname}}Service');
+{{#operation}}
+{{#contents}}
+
+router.post('{{path}}', (req, res, next) => {
+{{#parameters}}
+    let {{paramName}} = req.params.{{baseName}};
+{{/parameters}}
+    model.setPassword(req, (err, data) => {
+    if (err !== null) {
+        return next(err)
+    }
+    return res.responseOk({})
+    })
+})
+
+
+
+module.exports.{{nickname}} = function {{nickname}} (req, res, next) {
+  {{#parameters}}
+  var {{paramName}} = req.swagger.params['{{baseName}}'].value;
+  {{/parameters}}
+  {{classname}}.{{nickname}}({{#parameters}}{{paramName}}{{#hasMore}},{{/hasMore}}{{/parameters}})
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+{{/contents}}
+{{/operation}}
+{{/operations}}
+module.exports = routers

@@ -44,7 +44,7 @@ func {{nickname}}(c *gin.Context) {
     }
 {{/bodyParams}}
 {{#produces}}
-    c.Writer.Header().Set("Content-Type","{{mediaType}}")
+    c.Writer.Header().Set("Con             tent-Type","{{mediaType}}")
 {{/produces}}
     c.Writer.WriteHeader(http.StatusOK)
 {{#returnType}}

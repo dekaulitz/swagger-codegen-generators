@@ -820,7 +820,7 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
         // supporting files
         Map<String, Object> bundle = buildSupportFileBundle(allOperations, allModels);
         generateSupportingFiles(files, bundle);
-        config.processOpenAPI(openAPI);
+//        config.processOpenAPI(openAPI);
         return files;
     }
 

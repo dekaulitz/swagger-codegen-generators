@@ -1,54 +1,74 @@
-# <img src="https://raw.githubusercontent.com/swagger-api/swagger.io/wordpress/images/assets/SWC-logo-clr.png" height="80">
-
-- Master: [![Build Status](https://img.shields.io/jenkins/s/https/jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-codegen-generators-master-java-8.svg)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-codegen-generators-master-java-8)
-
-[![Build Status](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-codegen-generators-master-java-8/badge/icon?subject=jenkins%20build%20-%20master)](https://jenkins.swagger.io/view/OSS%20-%20Java/job/oss-swagger-codegen-generators-master-java-8/)
+# Swagger Codegen for the default library
 
 ## Overview
-**Swagger Codegen Generators** project is a set of classes and templates ([Handlebars](https://jknack.github.io/handlebars.java)) used by [Swagger Codegen 3.0.0 project](https://github.com/swagger-api/swagger-codegen/tree/3.0.0) in its code generation process for a specific language or language framework. The main differents with **Swagger Codegen 2.x.x** are:
+This is a boiler-plate project to generate your own client library with Swagger.  Its goal is
+to get you started with the basic plumbing so you can put in your own logic.  It won't work without
+your changes applied.
 
-- **Handlebars as template engine:** with Handelbars feature is possible to create more logic-less templates.
-- **OAS 3 support:** generator classes work with OpenAPI Specification V3.
+## What's Swagger?
+The goal of Swagger™ is to define a standard, language-agnostic interface to REST APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. When properly defined via Swagger, a consumer can understand and interact with the remote service with a minimal amount of implementation logic. Similar to what interfaces have done for lower-level programming, Swagger removes the guesswork in calling the service.
 
-More details about these and more differences are referenced at [https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0](https://github.com/swagger-api/swagger-codegen/releases/tag/v3.0.0)
 
-### Prerequisites
-You need the following installed and available in your $PATH:
+Check out [OpenAPI-Spec](https://github.com/OAI/OpenAPI-Specification) for additional information about the Swagger project, including additional libraries with support for other languages and more. 
 
-* Java 8 (http://java.oracle.com)
-* Apache maven 3.0.4 or greater (http://maven.apache.org/)
-
-## How to contribute.
-Right now the templates and generators classes are migrated from  [Swagger Codegen](https://github.com/swagger-api/swagger-codegen) **3.0.0** branch. 
-If you want to migrate an existing language/framework, you can follow this [guide](https://github.com/swagger-api/swagger-codegen/wiki/Swagger-Codegen-migration-(swagger-codegen-generators-repository)).
-Also you need to keep in mind that **Handlebars** is used as template engines and besides it's pretty similar to **Mustache** there are different that can not be ignored. So you can follow this [guide](https://github.com/swagger-api/swagger-codegen/wiki/Swagger-Codegen-migration-from-Mustache-and-Handlebars-templates.) which explains steps to migrate templates from **Mustaches** to **Handelbars**.
-
-## Security contact
-
-Please disclose any security-related issues or vulnerabilities by emailing [security@swagger.io](mailto:security@swagger.io), instead of using the public issue tracker.
-
-## License information on Generated Code
-
-The Swagger Codegen project is intended as a benefit for users of the Swagger / Open API Specification.  The project itself has the [License](#license) as specified.  In addition, please understand the following points:
-
-* The templates included with this project are subject to the [License](#license).
-* Generated code is intentionally _not_ subject to the parent project license
-
-When code is generated from this project, it shall be considered **AS IS** and owned by the user of the software.  There are no warranties--expressed or implied--for generated code.  You can do what you wish with it, and once generated, the code is your responsibility and subject to the licensing terms that you deem appropriate.
-
-## License
+## How do I use this?
+At this point, you've likely generated a client setup.  It will include something along these lines:
 
 ```
-Copyright 2019 SmartBear Software
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at [apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+.
+|- README.md    // this file
+|- pom.xml      // build script
+|-- src
+|--- main
+|---- java
+|----- io.swagger.codegen.DefaultGenerator.java // generator file
+|---- resources
+|----- default // template files
+|----- META-INF
+|------ services
+|------- io.swagger.codegen.CodegenConfig
 ```
 
+You _will_ need to make changes in at least the following:
+
+`DefaultGenerator.java`
+
+Templates in this folder:
+
+`src/main/resources/default`
+
+Once modified, you can run this:
+
+```
+mvn package
+```
+
+In your generator project.  A single jar file will be produced in `target`.  You can now use that with codegen:
+
+```
+java -cp /path/to/swagger-codegen-cli.jar:/path/to/your.jar io.swagger.codegen.Codegen -l default -i /path/to/swagger.yaml -o ./test
+```
+
+Now your templates are available to the client generator and you can write output values
+
+## But how do I modify this?
+The `DefaultGenerator.java` has comments in it--lots of comments.  There is no good substitute
+for reading the code more, though.  See how the `DefaultGenerator` implements `CodegenConfig`.
+That class has the signature of all values that can be overridden.
+
+For the templates themselves, you have a number of values available to you for generation.
+You can execute the `java` command from above while passing different debug flags to show
+the object you have available during client generation:
+
+```
+# The following additional debug options are available for all codegen targets:
+# -DdebugSwagger prints the OpenAPI Specification as interpreted by the codegen
+# -DdebugModels prints models passed to the template engine
+# -DdebugOperations prints operations passed to the template engine
+# -DdebugSupportingFiles prints additional data passed to the template engine
+
+java -DdebugOperations -cp /path/to/swagger-codegen-cli.jar:/path/to/your.jar io.swagger.codegen.Codegen -l default -i /path/to/swagger.yaml -o ./test
+```
+
+Will, for example, output the debug info for operations.  You can use this info
+in the `api.mustache` file.
