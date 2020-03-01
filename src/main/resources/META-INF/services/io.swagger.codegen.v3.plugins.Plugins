@@ -1,1 +1,2 @@
 io.swagger.codegen.v3.generators.modules.plugins.golang.GolangGin
+io.swagger.codegen.v3.generators.modules.plugins.java.SpringBoot

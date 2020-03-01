@@ -1,0 +1,1102 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "description": "Example open api spec",
+    "version": "1",
+    "title": "test open api spec",
+    "termsOfService": "",
+    "contact": {
+      "email": "sulaimanfahmi@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "{scheme}://192.10.180:{port}",
+      "variables": {
+        "scheme": {
+          "description": "entry point The Data Set API is accessible via https and http",
+          "enum": [
+            "http",
+            "https"
+          ],
+          "default": "https"
+        },
+        "port": {
+          "description": "port",
+          "default": "8080"
+        }
+      }
+    },
+    {
+      "url": "{scheme}://dev.api.tokita.id",
+      "variables": {
+        "scheme": {
+          "description": "entry point The Data Set API is accessible via https and http",
+          "enum": [
+            "http",
+            "https"
+          ],
+          "default": "https"
+        }
+      }
+    },
+    {
+      "url": "https://stage.api.tokita.id",
+      "variables": {
+        "scheme": {
+          "description": "entry point The Data Set API is accessible via https and http",
+          "enum": [
+            "http",
+            "https"
+          ],
+          "default": "https"
+        }
+      }
+    },
+    {
+      "url": "https://api.tokita.id",
+      "variables": {
+        "scheme": {
+          "description": "entry point The Data Set API is accessible via https and http",
+          "enum": [
+            "http",
+            "https"
+          ],
+          "default": "https"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "login",
+      "description": "for login users",
+      "externalDocs": {
+        "description": "Confluennce Docs, login using magic link",
+        "url": "https://gitlab.com"
+      }
+    },
+    {
+      "name": "registration",
+      "description": "registering new users"
+    },
+    {
+      "name": "forget account",
+      "description": "if some one forget their account credential"
+    },
+    {
+      "name": "user"
+    }
+  ],
+  "paths": {
+    "/api/v1.0/auth/registration": {
+      "post": {
+        "tags": [
+          "registration"
+        ],
+        "summary": "Process login operation",
+        "operationId": "registrationUser",
+        "externalDocs": {
+          "description": "Registration flow",
+          "url": "https://gitlab.com"
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/APPID"
+          },
+          {
+            "$ref": "#/components/parameters/TIMESTAMP"
+          },
+          {
+            "$ref": "#/components/parameters/XREQUESTID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/registrationRequest"
+              },
+              "examples": {
+                "REGISTRATIONREQUEST": {
+                  "$ref": "#/components/examples/REGISTRATIONREQUEST"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "user registration success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/registrationResponse"
+                },
+                "examples": {
+                  "REGISTRATIONRESPONSE": {
+                    "$ref": "#/components/examples/REGISTRATIONRESPONSE"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/api/v1.0/auth/login": {
+      "post": {
+        "tags": [
+          "login"
+        ],
+        "summary": "login process",
+        "operationId": "loginUser",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XREQUESTID"
+          },
+          {
+            "$ref": "#/components/parameters/APPID"
+          },
+          {
+            "$ref": "#/components/parameters/TIMESTAMP"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/loginRequest"
+              },
+              "example": {
+                "LOGINREQUEST_EXAMPLE": {
+                  "$ref": "#/components/examples/LOGINREQUEST_EXAMPLE"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "login success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/loginResponse"
+                },
+                "examples": {
+                  "loginResponse": {
+                    "$ref": "#/components/examples/LOGINRESPONSE_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "login proces fail related with authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseFailureWithAttempt"
+                },
+                "examples": {
+                  "INVALID_EMAIL_OR_PASSWORD_401": {
+                    "$ref": "#/components/examples/INVALID_EMAIL_OR_PASSWORD_401"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/api/v1.0/auth/forgetAccount": {
+      "post": {
+        "tags": [
+          "forget account"
+        ],
+        "summary": "forget an account",
+        "operationId": "forgetAccount",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/XREQUESTID"
+          },
+          {
+            "$ref": "#/components/parameters/APPID"
+          },
+          {
+            "$ref": "#/components/parameters/TIMESTAMP"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/forgetPinRequest"
+              },
+              "examples": {
+                "FORGETACCOUNT": {
+                  "$ref": "#/components/examples/FORGETACCOUNT"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "login success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/user"
+                },
+                "examples": {
+                  "loginResponse": {
+                    "$ref": "#/components/examples/FORGETPINACCOUNTRESPONSE"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "login proces fail related with authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseFailureWithAttempt"
+                },
+                "examples": {
+                  "INVALID_EMAIL_OR_PASSWORD_401": {
+                    "$ref": "#/components/examples/DATA_NOT_FOUND_404"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/api/v1.0/profile/{id}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "listing profile",
+        "operationId": "showUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/SIGNATURE"
+          },
+          {
+            "$ref": "#/components/parameters/XREQUESTID"
+          },
+          {
+            "$ref": "#/components/parameters/APPID"
+          },
+          {
+            "$ref": "#/components/parameters/TIMESTAMP"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response when success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/user"
+                },
+                "examples": {
+                  "USER": {
+                    "$ref": "#/components/examples/USER_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "login proces fail related with authorization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/responseFailureWithAttempt"
+                },
+                "examples": {
+                  "INVALID_EMAIL_OR_PASSWORD_401": {
+                    "$ref": "#/components/examples/DATA_NOT_FOUND_404"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/api/v1.0/users": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "operationId": "showUsers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "user id",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "example": "112333"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "go to spesific page",
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "limiting to showing data",
+            "schema": {
+              "type": "integer",
+              "default": "100"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "sorting the data",
+            "schema": {
+              "type": "string",
+              "default": "AtoZ",
+              "enum": [
+                "AtoZ",
+                "ZtoA",
+                "NewtoOld",
+                "OldtoNew"
+              ]
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "type documents",
+            "required": false,
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/parameters/SIGNATURE"
+          },
+          {
+            "$ref": "#/components/parameters/APPID"
+          },
+          {
+            "$ref": "#/components/parameters/TIMESTAMP"
+          },
+          {
+            "$ref": "#/components/parameters/XREQUESTID"
+          },
+          {
+            "$ref": "#/components/parameters/CLIENTID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "response when success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/users"
+                },
+                "examples": {
+                  "USER": {
+                    "$ref": "#/components/examples/USERS_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/api/v1.0/users/{id}/{typeDocs}": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "upload the documents",
+        "externalDocs": {
+          "description": "upload user documents",
+          "url": "https://github.com/dekaulitz"
+        },
+        "operationId": "uploadDocs",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "user id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": "112333"
+          },
+          {
+            "name": "typeDocs",
+            "in": "path",
+            "description": "type documents",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "KTP",
+                "SIM",
+                "PASPORT"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/SIGNATURE"
+          },
+          {
+            "$ref": "#/components/parameters/APPID"
+          },
+          {
+            "$ref": "#/components/parameters/TIMESTAMP"
+          },
+          {
+            "$ref": "#/components/parameters/XREQUESTID"
+          },
+          {
+            "$ref": "#/components/parameters/CLIENTID"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "userId",
+                  "file"
+                ],
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "response when success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/users"
+                },
+                "examples": {
+                  "USER": {
+                    "$ref": "#/components/examples/USERS_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "users": {
+        "type": "object",
+        "properties": {
+          "totalData": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/user"
+            }
+          }
+        }
+      },
+      "user": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 7
+          }
+        }
+      },
+      "registrationRequest": {
+        "type": "object",
+        "required": [
+          "firstName",
+          "lastName",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 7
+          }
+        }
+      },
+      "registrationResponse": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "loginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "forgetPinRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "userId"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "berak": {
+            "$ref": "#/components/schemas/updateCredentialRequest"
+          }
+        }
+      },
+      "updateCredentialRequest": {
+        "type": "object",
+        "required": [
+          "passiword",
+          "tokitaId"
+        ],
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "tokitaId": {
+            "type": "string"
+          },
+          "testRecursive": {
+            "$ref": "#/components/schemas/responseFailureWithAttempt"
+          }
+        }
+      },
+      "scopes": {
+        "type": "object",
+        "x-repository": {
+          "externalDocs": {
+            "description": "Confluennce Docs, login using magic link",
+            "url": "https://gitlab.com"
+          },
+          "tableName": "scopes",
+          "generateDate": false,
+          "properties": {
+            "id": {
+              "description": "primary key for this table",
+              "type": "integer",
+              "x-primary-key": true,
+              "x-autoincrement": true
+            },
+            "scope": {
+              "type": "string",
+              "maxLength": 45
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 45
+            },
+            "token": {
+              "type": "string",
+              "maxLength": 45
+            },
+            "user": {
+              "$ref": "#/components/schemas/user"
+            },
+            "berak": {
+              "$ref": "#/components/schemas/forgetPinRequest"
+            }
+          }
+        },
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "loginResponse": {
+        "type": "object",
+        "properties": {
+          "scopes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/scopes"
+            }
+          }
+        }
+      },
+      "responseSuccess": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "responseFailure": {
+        "type": "object",
+        "properties": {
+          "status_code": {
+            "type": "integer"
+          },
+          "app_code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "responseFailureWithAttempt": {
+        "type": "object",
+        "properties": {
+          "attempt_left": {
+            "type": "integer"
+          },
+          "status_code": {
+            "type": "integer"
+          },
+          "app_code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "401": {
+        "description": "if some request using do unauthorized request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/responseFailure"
+                },
+                {
+                  "$ref": "#/components/schemas/responseFailureWithAttempt"
+                }
+              ]
+            },
+            "examples": {
+              "SECURITY_ISSUES_401": {
+                "$ref": "#/components/examples/SECURITY_ISSUES_401"
+              },
+              "SIGNATURE_FAILED_401": {
+                "$ref": "#/components/examples/SIGNATURE_FAILED_401"
+              },
+              "SIGNATURE_FAILED_CLIENT_NOT_FOUND_401": {
+                "$ref": "#/components/examples/SIGNATURE_FAILED_CLIENT_NOT_FOUND_401"
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "invalid request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/responseFailure"
+            },
+            "examples": {
+              "USER_ALREADY_EXIST_400": {
+                "$ref": "#/components/examples/USER_ALREADY_EXIST_400"
+              },
+              "DUPLICATE_DATA_ENTRY_400": {
+                "$ref": "#/components/examples/DUPLICATE_DATA_ENTRY_400"
+              },
+              "BAD_REQUEST_400": {
+                "$ref": "#/components/examples/BAD_REQUEST_400"
+              }
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "something bad unexpected happen",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/responseFailure"
+            },
+            "examples": {
+              "INTERNAL_SERVER_ERROR_500": {
+                "$ref": "#/components/examples/INTERNAL_SERVER_ERROR_500"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "APPID": {
+        "name": "app-id",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "example": "abc-01"
+      },
+      "TIMESTAMP": {
+        "description": "current timestamp",
+        "name": "timestamp",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        },
+        "example": "9213812332"
+      },
+      "XREQUESTID": {
+        "description": "uniqueid",
+        "name": "x-request-id",
+        "required": true,
+        "in": "header",
+        "schema": {
+          "type": "string"
+        },
+        "example": "123asd123asd123"
+      },
+      "CLIENTID": {
+        "description": "client id that registering to our oauth service",
+        "name": "client-id",
+        "required": true,
+        "in": "header",
+        "schema": {
+          "type": "string"
+        },
+        "example": "tokita"
+      },
+      "SIGNATURE": {
+        "description": "hmac string that we created (appid||timestamp||method||endpoint|payload)",
+        "name": "signature",
+        "required": true,
+        "in": "header",
+        "schema": {
+          "type": "string"
+        },
+        "example": "3245671829i312j312312312312123123asd"
+      }
+    },
+    "examples": {
+      "FORGETACCOUNT": {
+        "value": {
+          "email": "sulaimanfahmi@gmail.com",
+          "userId": "12331123"
+        }
+      },
+      "FORGETPINACCOUNTRESPONSE": {
+        "value": {
+          "firstName": "fahmi",
+          "lastName": "sulaiman",
+          "email": "sulaimanfahmi@gmail.com",
+          "password": "babiNgepet"
+        }
+      },
+      "REGISTRATIONREQUEST": {
+        "value": {
+          "firstName": "fahmi",
+          "lastName": "sulaiman",
+          "email": "sulaimanfahmi@gmail.com",
+          "password": "babiNgepet"
+        }
+      },
+      "REGISTRATIONRESPONSE": {
+        "value": {
+          "firstName": "fahmi",
+          "lastName": "sulaiman",
+          "email": "sulaimanfahmi@gmail.com",
+          "token": "12312vghbjiokaspdlasd.12312312312312asdasdE123jjo1023oj1knBJKHIJOUGJBKN.123CGVHGJK"
+        }
+      },
+      "LOGINREQUEST_EXAMPLE": {
+        "value": {
+          "email": "sulaimanfahmi@gmail.com",
+          "password": "babiNgepet"
+        }
+      },
+      "USER_EXAMPLE": {
+        "value": {
+          "firstName": "fahmi",
+          "lastName": "sulaiman",
+          "email": "sulaimanfahmi@gmail.com"
+        }
+      },
+      "USERS_EXAMPLE": {
+        "value": [
+          {
+            "firstName": "ajo",
+            "lastName": "sulaiman",
+            "email": "sulaimanfahmi@gmail.com"
+          },
+          {
+            "firstName": "fahmi",
+            "lastName": "sulaiman",
+            "email": "sulaimanfahmi@gmail.com"
+          }
+        ]
+      },
+      "LOGINRESPONSE_EXAMPLE": {
+        "value": [
+          {
+            "name": "access_token",
+            "token": "123123123123123"
+          },
+          {
+            "name": "profile_token",
+            "token": "123.123.123"
+          }
+        ]
+      },
+      "SECURITY_ISSUES_401": {
+        "value": {
+          "status_code": 4100,
+          "app_code": "your service code",
+          "message": ""
+        }
+      },
+      "SIGNATURE_FAILED_401": {
+        "value": {
+          "status_code": 4101,
+          "app_code": "your service code",
+          "message": "Signature failed"
+        }
+      },
+      "SIGNATURE_FAILED_CLIENT_NOT_FOUND_401": {
+        "value": {
+          "status_code": 4102,
+          "app_code": "your service code",
+          "message": "Signature failed"
+        }
+      },
+      "INVALID_EMAIL_OR_PASSWORD_401": {
+        "value": {
+          "attempt_left": 1,
+          "status_code": 4103,
+          "app_code": "your service code",
+          "message": "Invalid email or passoword"
+        }
+      },
+      "VALIDATION_FAIL_422": {
+        "value": {
+          "status_code": 4200,
+          "app_code": "your service code",
+          "message": "your message validation here"
+        }
+      },
+      "DATA_ISSUES_400": {
+        "value": {
+          "status_code": 4300,
+          "app_code": "your service code",
+          "message": "your data issues over here"
+        }
+      },
+      "USER_ALREADY_EXIST_400": {
+        "value": {
+          "status_code": 4301,
+          "app_code": "your service code",
+          "message": "your message here"
+        }
+      },
+      "DUPLICATE_DATA_ENTRY_400": {
+        "value": {
+          "status_code": 4302,
+          "app_code": "your service code",
+          "message": "your message here"
+        }
+      },
+      "DATA_NOT_FOUND_404": {
+        "value": {
+          "status_code": 4303,
+          "app_code": "your service code",
+          "message": "your message here"
+        }
+      },
+      "BAD_REQUEST_400": {
+        "value": {
+          "status_code": 400,
+          "app_code": "your service code",
+          "message": "your message here"
+        }
+      },
+      "INTERNAL_SERVER_ERROR_500": {
+        "value": {
+          "status_code": 5000,
+          "app_code": "your service code",
+          "message": "your message here"
+        }
+      }
+    },
+    "x-entities": {
+      "users": {
+        "type": "object",
+        "description": "Test aja",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          }
+        }
+      },
+      "tokenn": {
+        "description": "test juga",
+        "type": "object",
+        "x-primary":{
+          "id":{
+            "type":"string"
+          }
+        },
+        "properties": {
+          "token_name": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/x-entities/users"
+          }
+        }
+      }
+    }
+  }
+}

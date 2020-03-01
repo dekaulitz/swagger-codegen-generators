@@ -453,7 +453,7 @@ public class PluginConfigurator extends CodegenConfigurator {
         if (authorizationValue != null) {
             authorizationValues.add(authorizationValue);
         }
-        if(this.extensionPlugin.length!=0){
+        if(this.extensionPlugin!=null && this.extensionPlugin.length!=0){
             input.setExtensionPlugin(this.extensionPlugin);
         }
         if (!StringUtils.isBlank(inputSpec)) {

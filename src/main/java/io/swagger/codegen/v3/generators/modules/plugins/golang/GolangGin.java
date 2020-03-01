@@ -152,8 +152,9 @@ public class GolangGin extends BaseGolang {
     public String toModelImport(String name) {
         return null;
     }
-
-
+    public String toEntityImport(String name) {
+        return null;
+    }
 
     @Override
     //for checking type data declaration

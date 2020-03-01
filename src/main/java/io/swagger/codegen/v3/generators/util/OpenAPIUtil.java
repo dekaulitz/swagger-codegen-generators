@@ -2,10 +2,13 @@ package io.swagger.codegen.v3.generators.util;
 
 
 import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static io.swagger.codegen.v3.CodegenConstants.HAS_VALIDATION_EXT_NAME;

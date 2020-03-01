@@ -484,7 +484,6 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
     }
 
 
-
     public String fileSuffix() {
         return fileSuffix;
     }
@@ -531,7 +530,6 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
     }
 
 
-
     public Map<String, String> modelTestTemplateFiles() {
         return modelTestTemplateFiles;
     }
@@ -547,7 +545,6 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
     public String apiFileFolder() {
         return outputFolder + File.separator + apiPackage().replace('.', File.separatorChar);
     }
-
 
 
     public String repositoryFileFolder() {
@@ -1031,13 +1028,20 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
      * @return string presentation of the type
      **/
     @SuppressWarnings("static-method")
+    /*
+    checking components or spesific schema
+    @WATCH this !!!!!
+     */
     public String getSchemaType(Schema property) {
         String datatype = null;
 
         if (StringUtils.isNotBlank(property.get$ref())) {
             try {
                 datatype = property.get$ref();
-                if (datatype.indexOf("#/components/schemas/") == 0) {
+                if (datatype.indexOf("#/components/x-entities/") == 0) {
+                    datatype = datatype.substring("#/components/x-entities/".length());
+                    return datatype;
+                } else if (datatype.indexOf("#/components/schemas/") == 0) {
                     datatype = datatype.substring("#/components/schemas/".length());
                     return datatype;
                 }
@@ -1280,10 +1284,7 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
             codegenModel.getVendorExtensions().putAll(schema.getExtensions());
         }
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, typeAliases.containsKey(name));
-        //this is for mocking the repository
-        if (codegenModel.getVendorExtensions().containsKey(X_REPOSITORY)) {
-            this.postProcessRepositories(codegenModel);
-        }
+
         codegenModel.discriminator = schema.getDiscriminator();
 
         if (schema.getXml() != null) {
@@ -3146,13 +3147,16 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
             }
         }
     }
+
     public void postProcessRepositories(CodegenModel codegenModel) {
         codegenModel.repository = Json.mapper().convertValue(codegenModel.getVendorExtensions().get(X_REPOSITORY), CodeGenRepositoryModel.class);
         CodeGenRepositoryModel repository = codegenModel.repository;
         repository.varRepositories = addRepositoryVars(codegenModel);
     }
+
     public List<CodegenProperty> addRepositoryVars(CodegenModel codegenModel) {
-        List<CodegenProperty> codegenProperties =new ArrayList<CodegenProperty>();;
+        List<CodegenProperty> codegenProperties = new ArrayList<CodegenProperty>();
+        ;
         List<Map.Entry<String, Schema>> propertyList = new ArrayList<Map.Entry<String, Schema>>(codegenModel.getRepository().getProperties().entrySet());
         final int totalCount = propertyList.size();
         for (int i = 0; i < totalCount; i++) {
@@ -3173,20 +3177,14 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
                     OpenAPIUtil.addPropertiesFromRef(this.openAPI, propertySchema, codegenProperty);
                 }
             }
-            if(codegenProperty.getVendorExtensions().containsKey(X_REPOSITORY_PRIMARY_KEY)){
-                codegenProperty.isPrimaryKey= (Boolean) codegenProperty.getVendorExtensions().get(X_REPOSITORY_PRIMARY_KEY);
-            }
-            if(codegenProperty.getVendorExtensions().containsKey(X_REPOSITORY_AUTOINCREMENT)){
-                codegenProperty.autoIncrement= (Boolean) codegenProperty.getVendorExtensions().get(X_REPOSITORY_AUTOINCREMENT);
-            }
             //@TODO we add for composite model
-            if(propertySchema.get$ref() !=null){
-                codegenProperty.varsItems=OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(propertySchema.get$ref()),this.openAPI);
+            if (propertySchema.get$ref() != null) {
+                codegenProperty.varsItems = OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(propertySchema.get$ref()), this.openAPI);
                 codegenProperty.varsItems.getProperties().forEach((o, o2) -> {
-                    Schema schema=(Schema) o2;
-                    if(schema.get$ref()!=null){
-                        Map<String,Schema> moreCompositeModel=new HashMap<>();
-                        moreCompositeModel.put((String) o,addMoreCompositeProperties(OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(schema.get$ref()),this.openAPI)));
+                    Schema schema = (Schema) o2;
+                    if (schema.get$ref() != null) {
+                        Map<String, Schema> moreCompositeModel = new HashMap<>();
+                        moreCompositeModel.put((String) o, addMoreCompositeProperties(OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(schema.get$ref()), this.openAPI)));
                         schema.setProperties(moreCompositeModel);
                     }
                     schema.type(getTypeDeclaration(schema));
@@ -3248,14 +3246,15 @@ public abstract class DefaultCodegenConfig extends CodegenConfigPlugins implemen
         }
 
         return codegenProperties;
-}
+    }
+
     //add more composite model
-    private Schema addMoreCompositeProperties(Schema schemaFromName){
+    private Schema addMoreCompositeProperties(Schema schemaFromName) {
         schemaFromName.getProperties().forEach((o, o2) -> {
-            Schema schema=(Schema) o2;
-            if(schema.get$ref()!=null){
-                Map<String,Schema> moreCompositeModel=new HashMap<>();
-                moreCompositeModel.put((String) o,addMoreCompositeProperties(OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(schema.get$ref()),this.openAPI)));
+            Schema schema = (Schema) o2;
+            if (schema.get$ref() != null) {
+                Map<String, Schema> moreCompositeModel = new HashMap<>();
+                moreCompositeModel.put((String) o, addMoreCompositeProperties(OpenAPIUtil.getSchemaFromName(OpenAPIUtil.getSimpleRef(schema.get$ref()), this.openAPI)));
                 schema.setProperties(moreCompositeModel);
             }
             schema.type(getTypeDeclaration(schema));

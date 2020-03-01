@@ -2,12 +2,20 @@ package io.swagger.codegen.v3.generators.modules.base.plugin;
 
 import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
+import io.swagger.codegen.v3.generators.modules.plugins.golang.GolangGin;
 import io.swagger.codegen.v3.plugins.EntitiesSchemas;
 import io.swagger.codegen.v3.plugins.Plugins;
+import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static io.swagger.codegen.v3.utils.ModelUtils.processCodegenModels;
+
 public abstract class AbstractPlugin extends DefaultCodegenConfig implements Plugins {
+    static Logger LOGGER = LoggerFactory.getLogger(AbstractPlugin.class);
     public static final String CONFIG_PACKAGE = "configPackage";
     public static final String BASE_PACKAGE = "basePackage";
     protected static final String ENTITIES_PACKAGE = "entitiesPackage";
@@ -109,7 +117,7 @@ public abstract class AbstractPlugin extends DefaultCodegenConfig implements Plu
 
     @Override
     public String toEntitiesName(String name) {
-        return this.toEntitiesName;
+        return name;
     }
 
     @Override
@@ -208,5 +216,108 @@ public abstract class AbstractPlugin extends DefaultCodegenConfig implements Plu
     @Override
     public CodegenModel fromEntities(String name, EntitiesSchemas schema, Map<String, EntitiesSchemas> allDefinitions) {
         return null;
+    }
+
+    public  String toEntityImport(String name){
+        return name;
+    }
+
+    public  String toVmodelImport(String name){
+        return name;
+    }
+
+
+
+    public Map<String, Object> postProcessAllEntities(Map<String, Object> processedModels) {
+        // Index all CodegenModels by model name.
+        Map<String, CodegenModel> allModels = new HashMap<>();
+        for (Map.Entry<String, Object> entry : processedModels.entrySet()) {
+            String modelName = toModelName(entry.getKey());
+            Map<String, Object> inner = (Map<String, Object>) entry.getValue();
+            List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
+            for (Map<String, Object> mo : models) {
+                CodegenModel codegenModel = (CodegenModel) mo.get("model");
+                allModels.put(modelName, codegenModel);
+            }
+        }
+        if (supportsInheritance) {
+            processCodegenModels(allModels);
+        }
+        for (String modelName : allModels.keySet()) {
+            final CodegenModel codegenModel = allModels.get(modelName);
+            if (!codegenModel.vendorExtensions.containsKey("x-is-composed-model")) {
+                continue;
+            }
+            List<String> modelNames = (List<String>) codegenModel.vendorExtensions.get("x-model-names");
+            if (modelNames == null || modelNames.isEmpty()) {
+                continue;
+            }
+            for (String name : modelNames) {
+                final CodegenModel model = allModels.get(name);
+                if (model == null) {
+                    continue;
+                }
+                if (model.interfaceModels == null) {
+                    model.interfaceModels = new ArrayList<>();
+                }
+                if (!model.interfaceModels.stream().anyMatch(value -> value.name.equalsIgnoreCase(modelName))) {
+                    model.interfaceModels.add(codegenModel);
+                }
+            }
+        }
+        return processedModels;
+    }
+
+    // override with any special post-processing
+    @SuppressWarnings("static-method")
+    public Map<String, Object> postProcessEntities(Map<String, Object> objs) {
+        return objs;
+    }
+
+
+    public Map<String, Object> postProcessAllVModels(Map<String, Object> processedModels) {
+        // Index all CodegenModels by model name.
+        Map<String, CodegenModel> allModels = new HashMap<>();
+        for (Map.Entry<String, Object> entry : processedModels.entrySet()) {
+            String modelName = toModelName(entry.getKey());
+            Map<String, Object> inner = (Map<String, Object>) entry.getValue();
+            List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
+            for (Map<String, Object> mo : models) {
+                CodegenModel codegenModel = (CodegenModel) mo.get("model");
+                allModels.put(modelName, codegenModel);
+            }
+        }
+        if (supportsInheritance) {
+            processCodegenModels(allModels);
+        }
+        for (String modelName : allModels.keySet()) {
+            final CodegenModel codegenModel = allModels.get(modelName);
+            if (!codegenModel.vendorExtensions.containsKey("x-is-composed-model")) {
+                continue;
+            }
+            List<String> modelNames = (List<String>) codegenModel.vendorExtensions.get("x-model-names");
+            if (modelNames == null || modelNames.isEmpty()) {
+                continue;
+            }
+            for (String name : modelNames) {
+                final CodegenModel model = allModels.get(name);
+                if (model == null) {
+                    continue;
+                }
+                if (model.interfaceModels == null) {
+                    model.interfaceModels = new ArrayList<>();
+                }
+                if (!model.interfaceModels.stream().anyMatch(value -> value.name.equalsIgnoreCase(modelName))) {
+                    model.interfaceModels.add(codegenModel);
+                }
+            }
+        }
+        return processedModels;
+    }
+
+    // override with any special post-processing
+    @SuppressWarnings("static-method")
+    public Map<String, Object> postProcessVModels(Map<String, Object> objs) {
+        return objs;
     }
 }

@@ -54,7 +54,7 @@ public class PluginRunner extends Generate {
             configurator = new PluginConfigurator();
         }
         //add new extension plugins
-        if (!extensionPlugin.isEmpty()) {
+        if (isNotEmpty(extensionPlugin)) {
             configurator.setExtensionPlugin(this.extensionPlugin.split(","));
         }
 
