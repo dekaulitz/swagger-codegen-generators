@@ -26,15 +26,15 @@ const (
 {{/description}}
 type {{classname}} struct {
 {{#x-repository-primary}}
-    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}' pk autoincr" json:"{{baseName}}"`
+    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}' pk autoincr""`
 {{/x-repository-primary}}
 {{#vars}}
     {{#description}}
         // {{{description}}}{{/description}}
-    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}'" json:"{{baseName}}"`
+    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}'"`
 {{/vars}}
 {{#x-repository-time}}
-    {{name}} time.Time `xorm:"'{{baseName}}'" json:"{{baseName}}"`
+    {{name}} time.Time `xorm:"'{{baseName}}'"`
 {{/x-repository-time}}
 }
 
