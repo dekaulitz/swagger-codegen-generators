@@ -25,7 +25,7 @@ public class SpringBoot extends BaseJava {
         super();
         cliOptions.clear();
         //add vModel templates loader
-        this.vModelTemplateFiles.put("vmodel.mustache", ".go");
+        this.vModelTemplateFiles.put("vmodel.mustache", ".java");
         //add api-controller templates loader
         this.apiTemplateFiles.put("api-controller.mustache", ".go");
         //add entities templates loader
@@ -78,12 +78,12 @@ public class SpringBoot extends BaseJava {
 
     @Override
     public String toVModelName(String name) {
-        return "vmodel_" + underscore(name);
+        return "Vmodel" + camelize(name);
     }
 
     @Override
     public String vModelFileFolder() {
-        return outputFolder + File.separator + basePackage + File.separator + "src/vmodels";
+        return outputFolder + File.separator + sourceFolder + File.separator + basePackage + File.separator + "vmodels";
     }
 
     @Override
@@ -125,6 +125,11 @@ public class SpringBoot extends BaseJava {
 
     @Override
     public String toEntityImport(String name) {
+        return null;
+    }
+
+    @Override
+    public String toVmodelImport(String name) {
         return null;
     }
 }

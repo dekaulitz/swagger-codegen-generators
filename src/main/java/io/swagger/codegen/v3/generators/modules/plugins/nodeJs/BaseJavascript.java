@@ -1,4 +1,4 @@
-package io.swagger.codegen.v3.generators.modules.plugins.java;
+package io.swagger.codegen.v3.generators.modules.plugins.nodeJs;
 
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
@@ -6,39 +6,13 @@ import io.swagger.codegen.v3.generators.modules.base.plugin.AbstractPlugin;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 import static io.swagger.codegen.v3.utils.ModelUtils.processCodegenModels;
 
-public abstract class BaseJava extends AbstractPlugin {
-    static Logger LOGGER = LoggerFactory.getLogger(BaseJava.class);
-
-    public BaseJava() {
-        super();
-        languageSpecificPrimitives = new HashSet<String>(
-            Arrays.asList(
-                "String",
-                "boolean",
-                "Boolean",
-                "Double",
-                "Integer",
-                "Long",
-                "Float",
-                "Object",
-                "byte[]")
-        );
-        instantiationTypes.put("array", "ArrayList");
-        instantiationTypes.put("map", "HashMap");
-        typeMapping.put("date", "Date");
-        typeMapping.put("file", "File");
-        typeMapping.put("binary", "File");
-    }
-
+public abstract class BaseJavascript extends AbstractPlugin {
     @Override
     public String escapeReservedWord(String name) {
         // Can't start with an underscore, as our fields need to start with an
@@ -57,7 +31,6 @@ public abstract class BaseJava extends AbstractPlugin {
         }
         return camelize(name) + '_';
     }
-
     public Map<String, Object> postProcessAllEntities(Map<String, Object> processedModels) {
         // Index all CodegenModels by model name.
         Map<String, CodegenModel> allModels = new HashMap<>();
@@ -96,10 +69,6 @@ public abstract class BaseJava extends AbstractPlugin {
                         final CodegenProperty codegenProperty = fromProperty(underscore(cb.getKey().toString()), sc);
                         enList.add(codegenProperty);
                     }
-                    ArrayList<Map<String, Object>> moImport = (ArrayList<Map<String, Object>>) ((Map<String, Object>) entry.getValue()).get("imports");
-                    Map<String, Object> importTiem = new HashMap<>();
-                    importTiem.put("import", "java.util.Date");
-                    moImport.add(importTiem);
                     mo.put("x-repository-time", enList);
                 }
                 allModels.put(modelName, codegenModel);
@@ -139,34 +108,32 @@ public abstract class BaseJava extends AbstractPlugin {
         if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
             Schema inner = arraySchema.getItems();
-            if (inner == null) {
-                LOGGER.warn(arraySchema.getName() + "(array property) does not have a proper inner type defined");
-                // TODO maybe better defaulting to StringProperty than returning null
-                return null;
-            }
-            return String.format("%s<%s>",instantiationTypes.get(getSchemaType(schema)),getTypeDeclaration(inner));
-            // return getSwaggerType(propertySchema) + "<" + getTypeDeclaration(inner) + ">";
+            return "[]" + getTypeDeclaration(inner);
         } else if (schema instanceof MapSchema && hasSchemaProperties(schema)) {
-            Schema inner = (Schema) schema.getAdditionalProperties();
-            if (inner == null) {
-                LOGGER.warn(schema.getName() + "(map property) does not have a proper inner type defined");
-                // TODO maybe better defaulting to StringProperty than returning null
-                return null;
-            }
-            return getSchemaType(schema) + "<String, " + getTypeDeclaration(inner) + ">";
-        } else if (schema instanceof MapSchema && hasTrueAdditionalProperties(schema)) {
-            Schema inner = new ObjectSchema();
-            return getSchemaType(schema) + "<String, " + getTypeDeclaration(inner) + ">";
+            MapSchema mapSchema = (MapSchema) schema;
+            Schema inner = (Schema) mapSchema.getAdditionalProperties();
+
+            return getSchemaType(schema) + "[string]" + getTypeDeclaration(inner);
         }
+        // Not using the supertype invocation, because we want to UpperCamelize
+        // the type.
         String schemaType = getSchemaType(schema);
-        String refSchema = schema.get$ref();
-        if (refSchema != null) {
-            String schemaEntities = "#/components/x-entities/";
-            String schemaVmodel = "#/components/schemas/";
-            if (refSchema.substring(schemaEntities.length()).equalsIgnoreCase(schemaType)) {
-                return toEntitiesName(schemaType);
-            } else if (refSchema.substring(schemaVmodel.length()).equalsIgnoreCase(schemaType)) {
-                return toVModelName(schemaType);
+        if (typeMapping.containsKey(schemaType)) {
+            return typeMapping.get(schemaType);
+        }
+        if (typeMapping.containsValue(schemaType)) {
+            return schemaType;
+        }
+        if (languageSpecificPrimitives.contains(schemaType)) {
+            return schemaType;
+        }
+
+        String refSchema=schema.get$ref();
+        if(refSchema !=null){
+            String schemaEntities="#/components/x-entities/";
+            String type=refSchema.substring(schemaEntities.length());
+            if(type.equalsIgnoreCase(schemaType)){
+                return schemaType+"."+camelize(schemaType);
             }
         }
 

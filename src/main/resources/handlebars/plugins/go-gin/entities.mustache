@@ -15,15 +15,15 @@ import ({{/imports}}{{#imports}}
 {{#isEnum}}{{#description}}// {{{classname}}} : {{{description}}}{{/description}}
 
 {{/isEnum}}{{^isEnum}}
-const (
-{{#x-repository-table}}
-    {{#description}}// {{{description}}}{{/description}}
-    table = "{{baseName}}"
-{{/x-repository-table}}
-)
+
 {{#description}}
-    // {{{description}}}
+// {{{description}}}
 {{/description}}
+
+type {{classname}}Interface interface{
+    GetTable()string
+}
+
 type {{classname}} struct {
 {{#x-repository-primary}}
     {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}' pk autoincr""`
@@ -33,10 +33,17 @@ type {{classname}} struct {
         // {{{description}}}{{/description}}
     {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}'"`
 {{/vars}}
+
 {{#x-repository-time}}
     {{name}} time.Time `xorm:"'{{baseName}}'"`
+
 {{/x-repository-time}}
 }
-
+{{#x-repository-table}}
+{{#description}}// {{{description}}}{{/description}}
+func (e {{classname}}) GetTable() string {
+   return "{{baseName}}"
+}
+{{/x-repository-table}}
 
 {{/isEnum}}{{/model}}{{/models}}

@@ -867,7 +867,7 @@ public class PluginsGenerator extends AbstractGenerator implements Generator {
 
         // apis
         List<Object> allOperations = new ArrayList<>();
-//        generateApis(files, allOperations, allModels);
+      generateApis(files, allOperations, allModels);
 //
         // supporting files
         Map<String, Object> bundle = buildSupportFileBundle(allOperations, allModels);

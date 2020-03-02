@@ -8,7 +8,11 @@ package {{apiPackage}}
 {{#operations}}
 import (
     "github.com/gin-gonic/gin"
-)
+{{#imports}}
+    {{/imports}}{{#imports}}
+    "{{import}}"{{/imports}}{{#imports}}
+{{/imports}}
+    )
 {{#operation}}{{#contents}}
 {{#summary}}
 /**
@@ -16,6 +20,28 @@ import (
  */{{/summary}}
 func {{nickname}}(c *gin.Context) {
     ctx := c.Request.Context()
+{{#headerParams}}
+    {{paramName}} := c.GetHeader("{{baseName}}")
+{{/headerParams}}
+{{#pathParams}}
+    {{paramName}} := c.Param("{{baseName}}")
+{{/pathParams}}
+{{#queryParams}}
+    {{>queryParam}}
+{{/queryParams}}
+{{#bodyParams}}
+    vmodel := &{{dataType}}{}
+    jsonFail := c.BindJSON(vmodel)
+    if jsonFail != nil {
+        panic(jsonFail)
+    }
+{{/bodyParams}}
+    if {{#each requiredParams}}{{#if @last}}{{paramName}} != ""{{else}}{{paramName}} != "" && {{/if}}{{/each}}{
+        panic("param empty")
+    }
+   {{#returnBaseType}}
+    ress := &{{returnBaseType}}{}
+   {{/returnBaseType}}
     return
 }
 
