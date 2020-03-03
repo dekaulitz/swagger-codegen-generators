@@ -19,6 +19,7 @@ public interface Plugins extends CodegenConfig {
     String entitiesTestFileFolder();
 
     String entitiesDocFileFolder();
+    String toEntityImport(String name);
 
     String toVModelName(String name);
 
@@ -31,7 +32,7 @@ public interface Plugins extends CodegenConfig {
     String vModelTestFileFolder();
 
     String vModelDocFileFolder();
-
+    String toVmodelImport(String name);
     String toServiceName(String name);
 
     String toServiceFilename(String name);
@@ -50,5 +51,11 @@ public interface Plugins extends CodegenConfig {
 
     public CodegenModel fromEntities(String name,EntitiesSchemas schema, Map<String, EntitiesSchemas>allDefinitions);
 
+    Map<String, Object> postProcessAllEntities(Map<String, Object> objs);
 
+    Map<String, Object> postProcessEntities(Map<String, Object> objs);
+
+    Map<String, Object> postProcessAllVModels(Map<String, Object> objs);
+
+    Map<String, Object> postProcessVModels(Map<String, Object> objs);
 }
