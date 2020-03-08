@@ -1,7 +1,6 @@
 package io.swagger.codegen.v3.generators.modules.plugins.nodeJs;
 
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.modules.base.plugin.AbstractPlugin;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -31,6 +30,7 @@ public abstract class BaseJavascript extends AbstractPlugin {
         }
         return camelize(name) + '_';
     }
+
     public Map<String, Object> postProcessAllEntities(Map<String, Object> processedModels) {
         // Index all CodegenModels by model name.
         Map<String, CodegenModel> allModels = new HashMap<>();
@@ -103,6 +103,12 @@ public abstract class BaseJavascript extends AbstractPlugin {
     }
 
     @Override
+    public Map<String, Object> postProcessAllVModels(Map<String, Object> processedModels) {
+        // Index all CodegenModels by model name.
+        return processedModels;
+    }
+
+    @Override
     //for checking type data declaration
     public String getTypeDeclaration(Schema schema) {
         if (schema instanceof ArraySchema) {
@@ -128,15 +134,70 @@ public abstract class BaseJavascript extends AbstractPlugin {
             return schemaType;
         }
 
-        String refSchema=schema.get$ref();
-        if(refSchema !=null){
-            String schemaEntities="#/components/x-entities/";
-            String type=refSchema.substring(schemaEntities.length());
-            if(type.equalsIgnoreCase(schemaType)){
-                return schemaType+"."+camelize(schemaType);
+        String refSchema = schema.get$ref();
+        if (refSchema != null) {
+            String schemaEntities = "#/components/x-entities/";
+            String type = refSchema.substring(schemaEntities.length());
+            if (type.equalsIgnoreCase(schemaType)) {
+                return schemaType + "." + camelize(schemaType);
             }
         }
 
         return toModelName(schemaType);
+    }
+
+    @Override
+    public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> objectMap = (Map<String, Object>) objs.get("operations");
+
+        @SuppressWarnings("unchecked")
+        List<CodegenOperation> operations = (List<CodegenOperation>) objectMap.get("operation");
+        for (CodegenOperation operation : operations) {
+            operation.httpMethod = operation.httpMethod.toLowerCase();
+            operation.path = this.fittingWithExpressFormat(operation);
+            List<CodegenParameter> params = operation.allParams;
+            if (params != null && params.size() == 0) {
+                operation.allParams = null;
+            }
+            List<CodegenResponse> responses = operation.responses;
+            if (responses != null) {
+                for (CodegenResponse resp : responses) {
+                    if ("0".equals(resp.code)) {
+                        resp.code = "default";
+                    }
+                }
+            }
+            if (operation.examples != null && !operation.examples.isEmpty()) {
+                // Leave application/json* items only
+                for (Iterator<Map<String, String>> it = operation.examples.iterator(); it.hasNext(); ) {
+                    final Map<String, String> example = it.next();
+                    final String contentType = example.get("contentType");
+                    if (contentType == null || !contentType.startsWith("application/json")) {
+                        it.remove();
+                    }
+                }
+            }
+        }
+        return objs;
+    }
+
+
+    //fitting with go gin new path
+    private String fittingWithExpressFormat(CodegenOperation operation) {
+        String[] newReplacements = operation.path.split("/");
+        int i = 0;
+        boolean itsSame = false;
+        for (String newReplacement : newReplacements) {
+            if (!operation.pathParams.isEmpty()) {
+                for (CodegenParameter codegenParameter : operation.pathParams) {
+                    if (newReplacement.matches(".*" + codegenParameter.paramName + "*.")) {
+                        newReplacements[i] = ":" + codegenParameter.paramName;
+                    }
+                }
+            }
+            i++;
+        }
+        return String.join("/", newReplacements);
     }
 }

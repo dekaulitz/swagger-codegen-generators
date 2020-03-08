@@ -21,6 +21,7 @@ public abstract class AbstractPlugin extends DefaultCodegenConfig implements Plu
     protected static final String ENTITIES_PACKAGE = "entitiesPackage";
     protected static final String SERVICE_PACKAGE = "servicePackage";
     protected static final String VMODEL_PACKAGE = "vModelPackage";
+    protected static final String API_PACKAGE = "apiPackage";
 
 
     protected String basePackage;

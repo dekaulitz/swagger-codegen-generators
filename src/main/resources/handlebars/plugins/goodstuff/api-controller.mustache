@@ -6,9 +6,9 @@
  */
 package {{package}};
 
-{{#imports}}
-{{import}};
+{{#imports}}{{import}};
 {{/imports}}
+
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
@@ -21,12 +21,29 @@ import java.util.Map;
 public class {{classFilename}} {
 {{#operation}}
     {{#contents}}
+
+            @ApiOperation(value = "{{{summary}}}", nickname = "{{{operationId}}}", notes = "{{{notes}}}"{{#returnBaseType}}, response = {{{returnBaseType}}}.class{{/returnBaseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
+        {{#authMethods}}@Authorization(value = "{{name}}"{{#isOAuth}}, scopes = { {{#each scopes}}
+                @AuthorizationScope(scope = "{{@key}}", description = "{{this}}"){{^@last}},{{/@last}}{{/each}}
+            }{{/isOAuth}}){{#hasMore}},
+        {{/hasMore}}{{/authMethods}}
+            }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
+            @ApiResponses(value = { {{#responses}}
+                @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{baseType}}}.class{{/baseType}}{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#hasMore}},{{/hasMore}}{{/responses}} })
+        {{#implicitHeaders}}
+                @ApiImplicitParams({
+            {{#headerParams}}
+                {{>implicitHeader}}
+            {{/headerParams}}
+                })
+        {{/implicitHeaders}}
             @RequestMapping(value = "{{{path}}}",{{#singleContentTypes}}{{#hasProduces}}
                 produces = "{{{vendorExtensions.x-accepts}}}", {{/hasProduces}}{{#hasConsumes}}
                 consumes = "{{{vendorExtensions.x-contentType}}}",{{/hasConsumes}}{{/singleContentTypes}}{{^singleContentTypes}}{{#hasProduces}}
                 produces = { {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }, {{/hasProduces}}{{#hasConsumes}}
                 consumes = { {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} },{{/hasConsumes}}{{/singleContentTypes}}
             method = RequestMethod.{{httpMethod}})
+
             public {{#responseWrapper}}{{.}}<{{/responseWrapper}}ResponseEntity<{{>returnTypes}}>{{#responseWrapper}}>{{/responseWrapper}} {{operationId}}(
             {{#parameters}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>cookieParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},{{/hasMore}}
             {{/parameters}}){

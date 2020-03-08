@@ -212,6 +212,48 @@ public abstract class BaseGolang extends AbstractPlugin {
     }
 
     @Override
+    public Map<String, Object> postProcessAllVModels(Map<String, Object> processedModels) {
+        // Index all CodegenModels by model name.
+        Map<String, CodegenModel> allModels = new HashMap<>();
+        for (Map.Entry<String, Object> entry : processedModels.entrySet()) {
+            String modelName = toModelName(entry.getKey());
+            Map<String, Object> inner = (Map<String, Object>) entry.getValue();
+            List<Map<String, Object>> models = (List<Map<String, Object>>) inner.get("models");
+            for (Map<String, Object> mo : models) {
+                CodegenModel codegenModel = (CodegenModel) mo.get("model");
+                allModels.put(modelName, codegenModel);
+            }
+        }
+        if (supportsInheritance) {
+            processCodegenModels(allModels);
+        }
+        for (String modelName : allModels.keySet()) {
+            final CodegenModel codegenModel = allModels.get(modelName);
+            if (!codegenModel.vendorExtensions.containsKey("x-is-composed-model")) {
+                continue;
+            }
+            List<String> modelNames = (List<String>) codegenModel.vendorExtensions.get("x-model-names");
+            if (modelNames == null || modelNames.isEmpty()) {
+                continue;
+            }
+            for (String name : modelNames) {
+                final CodegenModel model = allModels.get(name);
+                if (model == null) {
+                    continue;
+                }
+                if (model.interfaceModels == null) {
+                    model.interfaceModels = new ArrayList<>();
+                }
+                if (!model.interfaceModels.stream().anyMatch(value -> value.name.equalsIgnoreCase(modelName))) {
+                    model.interfaceModels.add(codegenModel);
+                }
+            }
+        }
+        return processedModels;
+    }
+
+
+    @Override
     public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
         @SuppressWarnings("unchecked")
         Map<String, Object> objectMap = (Map<String, Object>) objs.get("operations");
@@ -252,7 +294,7 @@ public abstract class BaseGolang extends AbstractPlugin {
         boolean addedOptionalImport = false;
         boolean addedTimeImport = false;
         boolean addedOSImport = false;
-        Set<String> importOperation=new HashSet<>();
+        Set<String> importOperation = new HashSet<>();
         for (CodegenOperation operation : operations) {
             for (CodegenParameter param : operation.allParams) {
                 // import "os" if the operation uses files
@@ -281,7 +323,7 @@ public abstract class BaseGolang extends AbstractPlugin {
                 }
             }
 
-            if(operation.bodyParam!=null || operation.returnBaseType !=null) {
+            if (operation.bodyParam != null || operation.returnBaseType != null) {
                 importOperation.add(this.getBasePakage() + File.separator + this.vmodelDirName);
             }
 

@@ -1,18 +1,28 @@
 package io.swagger.codegen.v3.generators.modules.plugins.java;
 
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenProperty;
+import io.swagger.codegen.v3.*;
+import io.swagger.codegen.v3.generators.examples.ExampleGenerator;
 import io.swagger.codegen.v3.generators.modules.base.plugin.AbstractPlugin;
+import io.swagger.codegen.v3.generators.util.OpenAPIUtil;
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.MapSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.*;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
+import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 import static io.swagger.codegen.v3.utils.ModelUtils.processCodegenModels;
 
 public abstract class BaseJava extends AbstractPlugin {
@@ -144,7 +154,7 @@ public abstract class BaseJava extends AbstractPlugin {
                 // TODO maybe better defaulting to StringProperty than returning null
                 return null;
             }
-            return String.format("%s<%s>",instantiationTypes.get(getSchemaType(schema)),getTypeDeclaration(inner));
+            return String.format("%s<%s>", instantiationTypes.get(getSchemaType(schema)), getTypeDeclaration(inner));
             // return getSwaggerType(propertySchema) + "<" + getTypeDeclaration(inner) + ">";
         } else if (schema instanceof MapSchema && hasSchemaProperties(schema)) {
             Schema inner = (Schema) schema.getAdditionalProperties();
@@ -171,5 +181,121 @@ public abstract class BaseJava extends AbstractPlugin {
         }
 
         return toModelName(schemaType);
+    }
+
+    @Override
+    public Map<String, Object> postProcessOperations(Map<String, Object> objs) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> objectMap = (Map<String, Object>) objs.get("operations");
+        @SuppressWarnings("unchecked")
+        List<CodegenOperation> operations = (List<CodegenOperation>) objectMap.get("operation");
+        for (CodegenOperation operation : operations) {
+//            operation.setReturnType(this.toModelImport(operation.getReturnType()));
+            operation.bodyParams.forEach(codegenParameter -> {
+                codegenParameter.dataType=toVModelName(operation.bodyParam.baseType);
+//                if (codegenParameter.getItems() != null)
+//                    if (codegenParameter.getItems().containerType.equals("array")) {
+//                        codegenParameter.dataType = codegenParameter.dataType.replace("[]", "[]vmodels.");
+//                    } else {
+//                        codegenParameter.dataType = "vmodels." + codegenParameter.dataType;
+//                    }
+//                else
+//                    codegenParameter.dataType = "vmodels." + codegenParameter.dataType;
+            });
+            if (operation.returnBaseType != null) {
+                if (this.openAPI.getComponents().getSchemas().get(operation.returnBaseType) != null) {
+                    operation.returnBaseType = toVarName(operation.returnBaseType);
+                }
+            }
+        }
+        Set<String> importOperation = new HashSet<>();
+        // remove model imports to avoid error
+        List<Map<String, String>> imports = (List<Map<String, String>>) objs.get("imports");
+
+        Iterator<Map<String, String>> iterator = imports.iterator();
+        while (iterator.hasNext()) {
+            String _import = iterator.next().get("import");
+            if (_import.startsWith(apiPackage()))
+                iterator.remove();
+        }
+
+        boolean addedOptionalImport = false;
+        boolean addedTimeImport = false;
+        boolean addedOSImport = false;
+
+
+
+        for (CodegenOperation operation : operations) {
+//            for (CodegenParameter param : operation.allParams) {
+//                // import "os" if the operation uses files
+//                if (!addedOSImport && param.dataType == "*os.File") {
+//                    imports.add(createMapping("import", "os"));
+//                    addedOSImport = true;
+//                }
+//
+//                // import "time" if the operation has a required time parameter.
+//                if (param.required) {
+//                    if (!addedTimeImport && param.dataType == "time.Time") {
+//                        imports.add(createMapping("import", "time"));
+//                        addedTimeImport = true;
+//                    }
+//                }
+//
+//                // import "optionals" package if the parameter is primitive and optional
+//                if (!param.required && getBooleanValue(param, CodegenConstants.IS_PRIMITIVE_TYPE_EXT_NAME)) {
+//                    // We need to specially map Time type to the optionals package
+//                    if (param.dataType == "time.Time") {
+//                        param.vendorExtensions.put("x-optionalDataType", "Time");
+//                        continue;
+//                    }
+//                    // Map optional type to dataType
+//                    param.vendorExtensions.put("x-optionalDataType", param.dataType.substring(0, 1).toUpperCase() + param.dataType.substring(1));
+//                }
+//            }
+
+            if ( operation.returnBaseType != null) {
+                importOperation.add("import "+this.getBasePakage() +".vmodels."+operation.returnType);
+            }
+            if(operation.bodyParam != null ){
+                importOperation.add("import "+this.getBasePakage() +".vmodels."+toVModelName(operation.bodyParam.baseType));
+            }
+            if(operation.returnType!=null){
+                importOperation.add("import "+this.getBasePakage() +".vmodels."+operation.returnType);
+            }
+
+        }
+        importOperation.forEach(s -> {
+            imports.add(createMapping("import", s));
+        });
+
+        // recursively add import for mapping one type to multiple imports
+        List<Map<String, String>> recursiveImports = (List<Map<String, String>>) objs.get("imports");
+        if (recursiveImports == null)
+            return objs;
+
+        ListIterator<Map<String, String>> listIterator = imports.listIterator();
+        while (listIterator.hasNext()) {
+            String _import = listIterator.next().get("import");
+            // if the import package happens to be found in the importMapping (key)
+            // add the corresponding import package to the list
+            if (importMapping.containsKey(_import)) {
+                listIterator.add(createMapping("import", importMapping.get(_import)));
+            }
+        }
+
+        return objs;
+    }
+
+    public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Schema> schemas, OpenAPI openAPI) {
+        CodegenOperation codegenOperation = super.fromOperation(path, httpMethod, operation, schemas, openAPI);
+
+        return codegenOperation;
+    }
+
+    public Map<String, String> createMapping(String key, String value) {
+        Map<String, String> customImport = new HashMap<String, String>();
+        customImport.put(key, value);
+
+        return customImport;
     }
 }

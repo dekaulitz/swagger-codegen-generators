@@ -325,7 +325,9 @@ public class PluginsGenerator extends AbstractGenerator implements Generator {
     //@NOTE custom
     //custom generate all vmodels
     protected void generateVmodel(List<File> files, List<Object> allModels) {
-
+        if(plugins.vModelFileFolder()==null){
+           return;
+        }
         final Map<String, Schema> schemas = this.openAPI.getComponents().getSchemas();
         if (schemas == null) {
             return;
@@ -401,7 +403,7 @@ public class PluginsGenerator extends AbstractGenerator implements Generator {
         }
 
         // post process all processed models
-        allProcessedModels = plugins.postProcessAllModels(allProcessedModels);
+        allProcessedModels = plugins.postProcessAllVModels(allProcessedModels);
 
         // generate files based on processed models
         for (String modelName : allProcessedModels.keySet()) {
@@ -862,9 +864,7 @@ public class PluginsGenerator extends AbstractGenerator implements Generator {
                 operation.put("classVarName", plugins.toApiVarName(tag));
                 operation.put("importPath", plugins.toApiImport(tag));
                 operation.put("classFilename", plugins.toApiFilename(tag));
-                if (config.generateService())
-                    //@TODO add service import package
-                    operation.put("importServices", plugins.importServices(ops));
+
                 if (!config.vendorExtensions().isEmpty()) {
                     operation.put("vendorExtensions", plugins.vendorExtensions());
                 }

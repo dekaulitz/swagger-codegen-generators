@@ -27,7 +27,7 @@ public class SpringBoot extends BaseJava {
         //add vModel templates loader
         this.vModelTemplateFiles.put("vmodel.mustache", ".java");
         //add api-controller templates loader
-        this.apiTemplateFiles.put("api-controller.mustache", ".go");
+        this.apiTemplateFiles.put("api-controller.mustache", ".java");
         //add entities templates loader
         this.entitiesTemplateFiles.put("entities.mustache", ".java");
         //add srevice templates loader
@@ -56,6 +56,7 @@ public class SpringBoot extends BaseJava {
             additionalProperties.put(ENTITIES_PACKAGE, basePackage + "." + entitiesPackage);
             additionalProperties.put(VMODEL_PACKAGE, basePackage + "." + vModelPackage);
             additionalProperties.put(SERVICE_PACKAGE, basePackage + "." + servicePackage);
+            additionalProperties.put(API_PACKAGE, basePackage + "." + apiPackage);
             LOGGER.info("Set base package to invoker package (" + basePackage + ")");
 
         }
@@ -64,16 +65,19 @@ public class SpringBoot extends BaseJava {
 
     }
 
-
+    @Override
+    public String apiPackage() {
+        return getBasePakage() + super.apiPackage();
+    }
 
     @Override
     public String apiFileFolder() {
-        return outputFolder + File.separator + basePackage + File.separator + "src/controllers";
+        return outputFolder + File.separator + sourceFolder + File.separator + basePackage + File.separator + "controllers";
     }
 
     @Override
     public String toApiFilename(String name) {
-        return "controller_" + underscore(name);
+        return"Controller" + camelize(name);
     }
 
     @Override

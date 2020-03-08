@@ -15,7 +15,7 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 
 public class GolangGin extends BaseGolang {
     static Logger LOGGER = LoggerFactory.getLogger(GolangGin.class);
-
+    private final String configFolder="src/configurations";
     public GolangGin() {
         super();
         //cleaning up cli before
@@ -28,12 +28,12 @@ public class GolangGin extends BaseGolang {
         //add vModel templates loader
         this.vModelTemplateFiles.put("vmodel.mustache", ".go");
         //add api-controller templates loader
-        this.apiTemplateFiles.put("api-controller.mustache", ".go");
-        //add entities templates loader
+       this.apiTemplateFiles.put("api-controller.mustache", ".go");
+     //   add entities templates loader
         this.entitiesTemplateFiles.put("entities.mustache", ".go");
-        //add srevice templates loader
+     //   add srevice templates loader
         this.serviceTemplateFiles.put("service.mustache", ".go");
-        //add model templates loader
+     //   add model templates loader
         this.modelTemplateFiles.put("model.mustache",".go");
 
         //add typing converter
@@ -75,7 +75,16 @@ public class GolangGin extends BaseGolang {
             LOGGER.info("Set base package to invoker package (" + basePackage + ")");
         }
         //addsuporting files
-        supportingFiles.add(new SupportingFile("routers.mustache", basePackage + File.separator + "src/controllers", "routers.go"));
+        supportingFiles.add(new SupportingFile("routers.mustache",  basePackage+File.separator+"src/controllers", "routers.go"));
+        supportingFiles.add(new SupportingFile("env.mustache", basePackage, "env"));
+        supportingFiles.add(new SupportingFile("main.mustache", basePackage, "main.go"));
+        supportingFiles.add(new SupportingFile("runner.mustache", basePackage, "runner.sh"));
+        supportingFiles.add(new SupportingFile("Dockerfile.mustache", basePackage, "Dockerfile"));
+
+
+        supportingFiles.add(new SupportingFile("configurations/env_configuration.go", basePackage+File.separator+configFolder, "env_configuration.go"));
+        supportingFiles.add(new SupportingFile("configurations/database_configuration.go", basePackage+File.separator+configFolder, "database_configuration.go"));
+
 
     }
 

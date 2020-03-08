@@ -17,18 +17,13 @@ public class ExpressJs extends BaseJavascript {
     public ExpressJs() {
         super();
         cliOptions.clear();
-        //add vModel templates loader
-        this.vModelTemplateFiles.put("vmodel.mustache", ".go");
         //add api-controller templates loader
-        this.apiTemplateFiles.put("api-controller.mustache", ".go");
+        this.apiTemplateFiles.put("api-controller.mustache", ".js");
         //add entities templates loader
         this.entitiesTemplateFiles.put("entities.mustache", ".js");
-        //add srevice templates loader
-        this.serviceTemplateFiles.put("service.mustache", ".go");
-        //add model templates loader
-        this.modelTemplateFiles.put("model.mustache", ".go");
 
     }
+
     //load configuration for operations
     @Override
     public void processOpts() {
@@ -43,23 +38,40 @@ public class ExpressJs extends BaseJavascript {
             LOGGER.info("Set base package to invoker package (" + basePackage + ")");
         }
         //addsuporting files
-        supportingFiles.add(new SupportingFile("routers.mustache", basePackage + File.separator + "src/controllers", "routers.go"));
-
+        supportingFiles.add(new SupportingFile("routers.mustache", basePackage + File.separator + "src/controllers", "routers.js"));
     }
 
     @Override
     public String getName() {
         return "express-js";
     }
+
     @Override
     public String getDefaultTemplateDir() {
         return "plugins/express-js";
     }
 
     @Override
+    public String toApiFilename(String name) {
+        return "controller." + underscore(name);
+    }
+
+
+    @Override
+    public String apiFileFolder() {
+        return outputFolder + File.separator + basePackage + File.separator + "src/controllers";
+    }
+
+    @Override
+    public String toApiName(String name) {
+         return "controller." + underscore(name);
+    }
+
+    @Override
     public String toEntitiesFilename(String name) {
         return "entity." + underscore(name);
     }
+
     @Override
     public String toEntitiesName(String name) {
         return "entity." + underscore(name);
@@ -72,6 +84,6 @@ public class ExpressJs extends BaseJavascript {
 
     @Override
     public String toEntityImport(String name) {
-        return "const " +name+"= require('../entities/"+toEntitiesName(name)+"')";
+        return "const " + name + "= require('../entities/" + toEntitiesName(name) + "')";
     }
 }

@@ -19,29 +19,24 @@ import ({{/imports}}{{#imports}}
 {{#description}}
 // {{{description}}}
 {{/description}}
-
-type {{classname}}Interface interface{
-    GetTable()string
-}
-
 type {{classname}} struct {
 {{#x-repository-primary}}
-    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}' pk autoincr""`
+    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `gorm:"primary_key"`
 {{/x-repository-primary}}
 {{#vars}}
     {{#description}}
         // {{{description}}}{{/description}}
-    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `xorm:"'{{baseName}}'"`
+    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}}
 {{/vars}}
 
 {{#x-repository-time}}
-    {{name}} time.Time `xorm:"'{{baseName}}'"`
+    {{name}} time.Time
 
 {{/x-repository-time}}
 }
 {{#x-repository-table}}
 {{#description}}// {{{description}}}{{/description}}
-func (e {{classname}}) GetTable() string {
+func (e *{{classname}}) TableName() string {
    return "{{baseName}}"
 }
 {{/x-repository-table}}
