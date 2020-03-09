@@ -1,0 +1,31 @@
+# ------------------------------------------------------------------------------
+# Base image
+# ------------------------------------------------------------------------------
+FROM golang:alpine AS BASE_IMAGE
+
+RUN apk update && apk upgrade && apk add --no-cache git
+ENV GOPATH /go
+ENV PROJECT_DIR $GOPATH/src/$PROJECTNAME
+ADD . $PROJECT_DIR
+ADD .env.test $PROJECT_DIR/.env.test
+WORKDIR $PROJECT_DIR
+#install depedency with dep but you can also add vendor from the source
+RUN go get -u github.com/golang/dep/cmd/dep
+RUN dep ensure
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+go build -gcflags "all=-N -l" -o /server
+
+ENTRYPOINT /server
+
+# ------------------------------------------------------------------------------
+# Production image
+# ------------------------------------------------------------------------------
+FROM alpine:latest as PRODUCTION_IMAGE
+RUN apk add --no-cache curl
+ENV GOPATH /go
+ENV PROJECT_DIR $GOPATH/src/$PROJECTNAME
+ADD docs $BASE_IMAGE/docs/
+COPY --from=BASE_IMAGE /server /
+HEALTHCHECK --interval=5s --timeout=3s --retries=3 \
+CMD curl -f http://localhost:8080/health/check || exit 1
+ENTRYPOINT /server
