@@ -16,6 +16,7 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 public class GolangGin extends BaseGolang {
     static Logger LOGGER = LoggerFactory.getLogger(GolangGin.class);
     private final String configFolder="src/configurations";
+    private final String utilFolder="src/utils";
     public GolangGin() {
         super();
         //cleaning up cli before
@@ -82,8 +83,11 @@ public class GolangGin extends BaseGolang {
         supportingFiles.add(new SupportingFile("Dockerfile.mustache", basePackage, "Dockerfile"));
 
 
-        supportingFiles.add(new SupportingFile("configurations/env_configuration.go", basePackage+File.separator+configFolder, "env_configuration.go"));
         supportingFiles.add(new SupportingFile("configurations/database_configuration.go", basePackage+File.separator+configFolder, "database_configuration.go"));
+        supportingFiles.add(new SupportingFile("configurations/env_configuration.mustache", basePackage+File.separator+configFolder, "env_configuration.go"));
+        supportingFiles.add(new SupportingFile("configurations/middleware_configuration.mustache", basePackage+File.separator+configFolder, "middleware_configuration.go"));
+        supportingFiles.add(new SupportingFile("utils/helper.go", basePackage+File.separator+utilFolder, "helper.go"));
+        supportingFiles.add(new SupportingFile("application.mustache", basePackage, "application.yaml"));
 
 
     }

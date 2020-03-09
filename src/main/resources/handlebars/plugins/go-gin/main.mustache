@@ -9,19 +9,56 @@ import(
     "{{basePackage}}/src/controllers"
     "{{basePackage}}/src/configurations"
     "github.com/gin-gonic/gin"
+    "log"
+    "net/http"
     "os"
+    "os/signal"
+    "syscall"
+    "time"
 )
 
 
 func main() {
-    serverPort := os.Getenv(configurations.SERVER_PORT)
-    if len(serverPort) > 0 {
-        panic("server port its not defined")
-    }
+    log.Printf("starting apps on port %s",configurations.GetConfig().ServerPort)
+    //set database connection
+    configurations.SetDatabaseConnection()
+    defer configurations.GetDatabaseConnection().DB().Close()
+
     engine := gin.Default()
+    //health check
+    engine.GET("/api/health", func(c *gin.Context) {
+        return
+    })
     controllers.GetRouters(engine)
-    err := engine.Run("localhost:" + serverPort)
-    if err!=nil{
-        panic(err)
+    srv := &http.Server{
+    Addr:    "localhost:" + configurations.GetConfig().ServerPort,
+    Handler: engine,
+    //WriteTimeout: time.Second * 15,
+    //ReadTimeout:  time.Second * 15,
+    //IdleTimeout:  time.Second * 60,
     }
+    go func() {
+    // service connections
+    if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+        log.Fatalf("listen: %s\n", err)
+    }
+    }()
+
+    quit := make(chan os.Signal, 1)
+    // kill (no param) default send syscanll.SIGTERM
+    // kill -2 is syscall.SIGINT
+    // kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+    signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+    <-quit
+    log.Println("Shutdown Server ...")
+
+    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+    defer cancel()
+    if err := srv.Shutdown(ctx); err != nil {
+        log.Fatal("Server Shutdown: ", err)
+    }
+    log.Println("Server exiting")
+
+
 }
+
