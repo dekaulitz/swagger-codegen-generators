@@ -8,6 +8,7 @@ package {{apiPackage}}
 {{#operations}}
 import (
     "github.com/gin-gonic/gin"
+    "{{basePackage}}/src/configurations"
 {{#imports}}
     {{/imports}}{{#imports}}
     "{{import}}"{{/imports}}{{#imports}}
@@ -41,6 +42,7 @@ func {{nickname}}(c *gin.Context) {
     }
    {{#returnBaseType}}
     ress := &{{returnBaseType}}{}
+    configurations.NewResponse(c).Ok(ress).Build()
    {{/returnBaseType}}
     return
 }

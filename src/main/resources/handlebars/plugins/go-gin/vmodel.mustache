@@ -23,7 +23,7 @@ type {{classname}} struct {
 {{#vars}}
     {{#description}}
         // {{{description}}}{{/description}}
-    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `json:"'{{baseName}},omitempty'"`
+    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `json:"{{baseName}},omitempty"`
 {{/vars}}
 }
 {{/isEnum}}{{/model}}{{/models}}
