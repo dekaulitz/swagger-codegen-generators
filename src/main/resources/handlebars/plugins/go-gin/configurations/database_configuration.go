@@ -16,22 +16,17 @@ var (
 	engine = &gorm.DB{}
 )
 
-func init() {
-	DATABASE_HOST := os.Getenv(DATABASE_HOST)
-	if DATABASE_HOST == "" {
-		panic("database host its not defined")
-	}
+func SetDatabaseConnection() {
 	var err error
 	//user:password@/dbname?charset=utf8&parseTime=True&loc=Local"
-	engine, err = gorm.Open("mysql", DATABASE_HOST)
+	engine, err = gorm.Open("mysql", config.DatabaseHost)
 	if err != nil {
 		panic(err.Error())
 	}
 	engine.DB().SetMaxOpenConns(10)
 	engine.DB().SetMaxIdleConns(1)
 }
-
-func GetDB() *gorm.DB {
+func GetDatabaseConnection() *gorm.DB {
 	return engine
 }
 

@@ -5,7 +5,6 @@ package main
  * Generated on {{generateDate}}
  * Developed by sulaimanfahmi@gmail.com
  */
-
 import(
     "{{basePackage}}/src/controllers"
     "{{basePackage}}/src/configurations"
@@ -19,15 +18,21 @@ import(
     "context"
 )
 
+
 func main() {
-    serverPort := os.Getenv(configurations.SERVER_PORT)
-    if len(serverPort) > 0 {
-        panic("server port its not defined")
-    }
+    log.Printf("starting apps on port %s",configurations.GetConfig().ServerPort)
+    //set database connection
+    configurations.SetDatabaseConnection()
+    defer configurations.GetDatabaseConnection().DB().Close()
+
     engine := gin.Default()
+    //health check
+    engine.GET("/api/health", func(c *gin.Context) {
+        return
+    })
     controllers.GetRouters(engine)
     srv := &http.Server{
-    Addr:    config.Host.Host + ":" + config.Host.Port,
+    Addr:    "localhost:" + configurations.GetConfig().ServerPort,
     Handler: engine,
     //WriteTimeout: time.Second * 15,
     //ReadTimeout:  time.Second * 15,
@@ -39,6 +44,7 @@ func main() {
         log.Fatalf("listen: %s\n", err)
     }
     }()
+
     quit := make(chan os.Signal, 1)
     // kill (no param) default send syscanll.SIGTERM
     // kill -2 is syscall.SIGINT
@@ -46,11 +52,14 @@ func main() {
     signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
     <-quit
     log.Println("Shutdown Server ...")
+
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
     defer cancel()
     if err := srv.Shutdown(ctx); err != nil {
         log.Fatal("Server Shutdown: ", err)
     }
-
     log.Println("Server exiting")
+
+
 }
+
