@@ -16,7 +16,7 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 public class GolangGin extends BaseGolang {
     static Logger LOGGER = LoggerFactory.getLogger(GolangGin.class);
     private final String configFolder="src/configurations";
-    private final String utilFolder="src/utils";
+    private final String helperFolder="src/helper";
     public GolangGin() {
         super();
         //cleaning up cli before
@@ -87,7 +87,9 @@ public class GolangGin extends BaseGolang {
         supportingFiles.add(new SupportingFile("configurations/env_configuration.mustache", basePackage+File.separator+configFolder, "env_configuration.go"));
         supportingFiles.add(new SupportingFile("configurations/middleware_configuration.mustache", basePackage+File.separator+configFolder, "middleware_configuration.go"));
         supportingFiles.add(new SupportingFile("configurations/response_configuration.go", basePackage+File.separator+configFolder, "response_configuration.go"));
-        supportingFiles.add(new SupportingFile("utils/helper.go", basePackage+File.separator+utilFolder, "helper.go"));
+        supportingFiles.add(new SupportingFile("configurations/http_configuration.go", basePackage+File.separator+configFolder, "http_configuration.go"));
+        supportingFiles.add(new SupportingFile("helper/helper.go", basePackage+File.separator+helperFolder, "helper.go"));
+        supportingFiles.add(new SupportingFile("helper/status_code_helper.go", basePackage+File.separator+helperFolder, "status_code_helper.go"));
         supportingFiles.add(new SupportingFile("application.mustache", basePackage, "application.yaml"));
 
 
