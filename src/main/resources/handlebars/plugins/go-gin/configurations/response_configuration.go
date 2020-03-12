@@ -1,6 +1,7 @@
 package configurations
 
 import (
+	"com.github.dekaulitz.codegen/src/helper"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -18,6 +19,7 @@ type ResponseBody struct {
 	Meta ResponseMeta `json:"meta"`
 	Data interface{}  `json:"data"`
 }
+
 type ResponseMeta struct {
 	Timestamp       time.Time `json:"timestamp"`
 	XRequestId      string    `json:"x_request_id"`
@@ -38,12 +40,12 @@ func NewResponse(ctx *gin.Context) *Response {
 }
 
 func (r *Response) SetHeaders(headers map[string]string) *Response {
-	for key,value:=range headers  {
+	for key, value := range headers {
 		r.context.Writer.Header().Set(key, value)
 	}
 	return r
 }
-func (r *Response)SetCookies(headers map[string]string) *Response  {
+func (r *Response) SetCookies(headers map[string]string) *Response {
 	return r
 }
 func (r *Response) Build() {
@@ -61,8 +63,8 @@ func (r *Response) Ok(body interface{}) *Response {
 		Meta: ResponseMeta{
 			Timestamp:       time.Now(),
 			XRequestId:      r.context.GetHeader("X-Request-Id"),
-			ResponseCode:    "FL0000",
-			ResponseMessage: "success",
+			ResponseCode:    helper.SUCCESS.ResponseCode,
+			ResponseMessage: helper.SUCCESS.ResponseMessage,
 		},
 		Data: body,
 	}
@@ -70,27 +72,27 @@ func (r *Response) Ok(body interface{}) *Response {
 	return r
 }
 
-func (r *Response) BadRequest(response map[string]string) *Response {
+func (r *Response) BadRequest(body interface{}, response helper.ResponseMessage) *Response {
 	r.body = &ResponseBody{
 		Meta: ResponseMeta{
 			Timestamp:       time.Now(),
 			XRequestId:      r.context.GetHeader("X-Request-Id"),
-			ResponseCode:    response["response_code"],
-			ResponseMessage: response["response_message"],
+			ResponseCode:    response.ResponseCode,
+			ResponseMessage: response.ResponseMessage,
 		},
-		Data: nil,
+		Data: body,
 	}
 	r.context.Writer.WriteHeader(http.StatusBadRequest)
 	return r
 }
 
-func (r *Response) InternalError(response map[string]string)  *Response{
+func (r *Response) InternalError(response helper.ResponseMessage) *Response {
 	r.body = &ResponseBody{
 		Meta: ResponseMeta{
 			Timestamp:       time.Now(),
 			XRequestId:      r.context.GetHeader("X-Request-Id"),
-			ResponseCode:    response["response_code"],
-			ResponseMessage: response["response_message"],
+			ResponseCode:    response.ResponseCode,
+			ResponseMessage: response.ResponseMessage,
 		},
 		Data: nil,
 	}
@@ -98,43 +100,43 @@ func (r *Response) InternalError(response map[string]string)  *Response{
 	return r
 }
 
-func (r *Response) UnprocessableEntity(response map[string]string)  *Response{
+func (r *Response) UnprocessableEntity(body interface{}, response helper.ResponseMessage) *Response {
 	r.body = &ResponseBody{
 		Meta: ResponseMeta{
 			Timestamp:       time.Now(),
 			XRequestId:      r.context.GetHeader("X-Request-Id"),
-			ResponseCode:    response["response_code"],
-			ResponseMessage: response["response_message"],
+			ResponseCode:    response.ResponseCode,
+			ResponseMessage: response.ResponseMessage,
 		},
-		Data: nil,
+		Data: body,
 	}
 	r.context.Writer.WriteHeader(http.StatusUnprocessableEntity)
 	return r
 }
 
-func (r *Response) Forbidden(response map[string]string)  *Response{
+func (r *Response) Forbidden(body interface{}, response helper.ResponseMessage) *Response {
 	r.body = &ResponseBody{
 		Meta: ResponseMeta{
 			Timestamp:       time.Now(),
 			XRequestId:      r.context.GetHeader("X-Request-Id"),
-			ResponseCode:    response["response_code"],
-			ResponseMessage: response["response_message"],
+			ResponseCode:    response.ResponseCode,
+			ResponseMessage: response.ResponseMessage,
 		},
-		Data: nil,
+		Data: body,
 	}
 	r.context.Writer.WriteHeader(http.StatusForbidden)
 	return r
 }
 
-func (r *Response) Unauthorized(response map[string]string)  *Response{
+func (r *Response) Unauthorized(body interface{}, response helper.ResponseMessage) *Response {
 	r.body = &ResponseBody{
 		Meta: ResponseMeta{
 			Timestamp:       time.Now(),
 			XRequestId:      r.context.GetHeader("X-Request-Id"),
-			ResponseCode:    response["response_code"],
-			ResponseMessage: response["response_message"],
+			ResponseCode:    response.ResponseCode,
+			ResponseMessage: response.ResponseMessage,
 		},
-		Data: nil,
+		Data: body,
 	}
 	r.context.Writer.WriteHeader(http.StatusUnauthorized)
 	return r

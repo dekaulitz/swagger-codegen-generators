@@ -1,7 +1,7 @@
 package configurations
 
 import (
-    "com.gitlab.dekaulitz/src/utils"
+    "{{basePackage}}/src/helper"
     "gopkg.in/yaml.v2"
     "io/ioutil"
     "log"
@@ -20,7 +20,7 @@ type Configuration struct {
     DatabaseHost string `yaml:"database_host,omitempty"`
     ServerPort   string `yaml:"server_port,omitempty"`
     RedisHost    string `yaml:"redis_host,omitempty"`
-    AppName      string `yaml:"app_name,omitempty"`
+    ProjectName  string `yaml:"project_name,omitempty"`
 }
 
 var config Configuration
@@ -39,10 +39,10 @@ func init() {
     if err != nil {
         panic(err)
     }
-    config.DatabaseHost = os.Getenv(utils.GetEnvironment(config.DatabaseHost))
-    config.ServerPort = os.Getenv(utils.GetEnvironment(config.ServerPort))
-    config.RedisHost = os.Getenv(utils.GetEnvironment(config.RedisHost))
-    config.AppName = os.Getenv(utils.GetEnvironment(config.AppName))
+    config.DatabaseHost = os.Getenv(helper.GetEnvironment(config.DatabaseHost))
+    config.ServerPort = os.Getenv(helper.GetEnvironment(config.ServerPort))
+    config.RedisHost = os.Getenv(helper.GetEnvironment(config.RedisHost))
+    config.ProjectName = os.Getenv(helper.GetEnvironment(config.ProjectName))
 }
 
 func GetConfig() *Configuration {
