@@ -88,6 +88,7 @@ public class GolangGin extends BaseGolang {
         supportingFiles.add(new SupportingFile("configurations/middleware_configuration.mustache", basePackage+File.separator+configFolder, "middleware_configuration.go"));
         supportingFiles.add(new SupportingFile("configurations/response_configuration.go", basePackage+File.separator+configFolder, "response_configuration.go"));
         supportingFiles.add(new SupportingFile("configurations/http_configuration.go", basePackage+File.separator+configFolder, "http_configuration.go"));
+        supportingFiles.add(new SupportingFile("configurations/redis_configuration.go", basePackage+File.separator+configFolder, "redis_configuration.go"));
         supportingFiles.add(new SupportingFile("helper/helper.go", basePackage+File.separator+helperFolder, "helper.go"));
         supportingFiles.add(new SupportingFile("helper/status_code_helper.go", basePackage+File.separator+helperFolder, "status_code_helper.go"));
         supportingFiles.add(new SupportingFile("application.mustache", basePackage, "application.yaml"));

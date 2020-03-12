@@ -24,7 +24,7 @@ func main() {
     //set database connection
     configurations.SetDatabaseConnection()
     defer configurations.GetDatabaseConnection().DB().Close()
-
+    configurations.SetRedisConnection()
     engine := gin.Default()
     //health check
     engine.GET("/api/health", func(c *gin.Context) {
