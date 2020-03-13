@@ -13,9 +13,9 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.json())
 
-{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}
-app.use(require('./{{classname}}'))
-{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
+{{#apiInfo}}{{#apis}}
+app.use(require('../controllers/{{classFilename}}'))
+{{/apis}}{{/apiInfo}}
 
 module.exports = app
 
