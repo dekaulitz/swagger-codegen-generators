@@ -60,6 +60,14 @@ public class GolangGin extends BaseGolang {
         typeMapping.put("UUID", "string");
         typeMapping.put("Object", "interface{}");
 
+
+        //import mapping related with variable type
+        importMapping.put("Datetime","time");
+        importMapping.put("DateTime", "time");
+        importMapping.put("LocalDateTime", "time");
+        importMapping.put("LocalDate", "time");
+        importMapping.put("LocalTime", "time");
+
     }
 
     //load configuration for operations
