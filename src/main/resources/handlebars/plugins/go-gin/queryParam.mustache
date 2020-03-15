@@ -1,1 +1,1 @@
-{{#is this 'query-param'}}{{#is this 'list-container'}}{{paramName}} := c.QueryArray("{{baseName}}"){{/is}}{{#isNot this 'list-container'}}{{baseName}} := c.Query("{{baseName}}"){{/isNot}}{{/is}}
+{{#is this 'query-param'}}{{#is this 'list-container'}}{{paramName}} := c.QueryArray("{{baseName}}"){{/is}}{{#isNot this 'list-container'}}{{paramName}} := c.Query("{{baseName}}"){{/isNot}}{{/is}}
