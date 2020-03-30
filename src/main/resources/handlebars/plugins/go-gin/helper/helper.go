@@ -8,6 +8,7 @@ package helper
  */
 import (
 	"regexp"
+    "encoding/json"
 )
 
 func GetEnvironment(value string) string {
@@ -16,4 +17,19 @@ func GetEnvironment(value string) string {
 		return string(value[2 : len(value)-1])
 	}
 	return ""
+}
+
+func JsonToObject(byte []byte, intr interface{}) error {
+	if err := json.Unmarshal(byte, intr); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ObjectToBytes(value interface{}) ([]byte, error) {
+	result, err := json.Marshal(value)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }

@@ -16,7 +16,10 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 public class GolangGin extends BaseGolang {
     static Logger LOGGER = LoggerFactory.getLogger(GolangGin.class);
     private final String configFolder="src/configurations";
+    private final String configMiddleware="src/middleware";
     private final String helperFolder="src/helper";
+    private final String utilsRedis="src/utils/redisUtils";
+    private final String exceptionFolder="src/exception";
     public GolangGin() {
         super();
         //cleaning up cli before
@@ -93,7 +96,10 @@ public class GolangGin extends BaseGolang {
 
         supportingFiles.add(new SupportingFile("configurations/database_configuration.go", basePackage+File.separator+configFolder, "database_configuration.go"));
         supportingFiles.add(new SupportingFile("configurations/env_configuration.mustache", basePackage+File.separator+configFolder, "env_configuration.go"));
-        supportingFiles.add(new SupportingFile("configurations/middleware_configuration.mustache", basePackage+File.separator+configFolder, "middleware_configuration.go"));
+        supportingFiles.add(new SupportingFile("middleware/middleware_configuration.mustache", basePackage+File.separator+configMiddleware, "middleware_configuration.go"));
+        supportingFiles.add(new SupportingFile("utils/redisUtils/redis.mustache", basePackage+File.separator+utilsRedis, "redis.go"));
+        supportingFiles.add(new SupportingFile("exception/exception_handler.mustache", basePackage+File.separator+exceptionFolder, "exception_handler.go"));
+
         supportingFiles.add(new SupportingFile("configurations/response_configuration.mustache", basePackage+File.separator+configFolder, "response_configuration.go"));
         supportingFiles.add(new SupportingFile("configurations/http_configuration.go", basePackage+File.separator+configFolder, "http_configuration.go"));
         supportingFiles.add(new SupportingFile("configurations/redis_configuration.go", basePackage+File.separator+configFolder, "redis_configuration.go"));

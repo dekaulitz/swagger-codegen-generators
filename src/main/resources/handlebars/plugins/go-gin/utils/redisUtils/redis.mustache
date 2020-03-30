@@ -1,0 +1,86 @@
+package redisUtils
+
+import (
+	"{{basePackage}}/src/configurations"
+	"{{basePackage}}/src/helper"
+	"github.com/go-redis/redis"
+	"log"
+	"time"
+)
+
+type CacheConfig struct {
+	Key       string
+	ExpiredIn time.Duration
+}
+
+type CacheInterface interface {
+	Set(key string, value interface{}) error
+	Get(key string, value interface{}) error
+	Publish(key string, value interface{}) error
+}
+type Cache struct {
+	Config      *CacheConfig
+	RedisClient *redis.Client
+}
+
+var (
+	DATA_CLIENT = &CacheConfig{
+		Key:       "CLIENT_",
+		ExpiredIn: 8 * time.Hour,
+	}
+	AUTH_CODE = &CacheConfig{
+		Key:       "auth_code",
+		ExpiredIn: 1 * time.Hour,
+	}
+	ACCESS_TOKEN = &CacheConfig{
+		Key:       "auth_code",
+		ExpiredIn: 1 * time.Hour,
+	}
+)
+
+func NewCache(config *CacheConfig) *Cache {
+	return &Cache{
+		Config:      config,
+		RedisClient: configurations.GetRedisConnection(),
+	}
+}
+
+func (c Cache) Set(key string, value interface{}) error {
+	data, err := helper.ObjectToBytes(value)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	ress := c.RedisClient.Set(c.Config.Key+key, data, c.Config.ExpiredIn)
+	if ress.Err() != nil {
+		log.Println(err)
+		return ress.Err()
+	}
+	return nil
+}
+
+func (c Cache) Get(key string, value interface{}) error {
+	ress, err := c.RedisClient.Get(c.Config.Key + key).Result()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	err = helper.JsonToObject([]byte(ress), value)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func (c Cache) Del(key string) error {
+	_, err := c.RedisClient.Del(c.Config.Key + key).Result()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+func (c Cache) Publish(channel string, value interface{}) error {
+	return nil
+}

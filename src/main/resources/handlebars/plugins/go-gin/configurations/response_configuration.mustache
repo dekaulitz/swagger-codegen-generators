@@ -1,7 +1,8 @@
 package configurations
 
 import (
-	"{{basePackage}}/src/helper"
+	"com.gitlab.tokita.oauthservice/src/exception"
+	"com.gitlab.tokita.oauthservice/src/helper"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -31,6 +32,8 @@ type ResponseInterface interface {
 	SetHeaders(headers map[string]string) *Response
 	SetCookies(headers map[string]string) *Response
 	Build()
+	GetBody() *ResponseBody
+	GetHeaders() map[string]string
 }
 
 func NewResponse(ctx *gin.Context) *Response {
@@ -44,6 +47,12 @@ func (r *Response) SetHeaders(headers map[string]string) *Response {
 		r.context.Writer.Header().Set(key, value)
 	}
 	return r
+}
+func (r *Response) GetBody() *ResponseBody {
+	return r.body
+}
+func (r *Response) GetHeaders() map[string]string {
+	return r.headers
 }
 func (r *Response) SetCookies(headers map[string]string) *Response {
 	return r
@@ -68,20 +77,23 @@ func (r *Response) Ok(body interface{}) *Response {
 		},
 		Data: body,
 	}
+	r.context.Writer.Header().Set("X-Response-Code",helper.SUCCESS.ResponseCode)
 	r.context.Writer.WriteHeader(http.StatusOK)
 	return r
 }
 
-func (r *Response) BadRequest(body interface{}, response helper.ResponseMessage) *Response {
+func (r *Response) BadRequest(body interface{}) *Response {
+	response := body.(exception.Exception)
 	r.body = &ResponseBody{
 		Meta: ResponseMeta{
 			Timestamp:       time.Now(),
 			XRequestId:      r.context.GetHeader("X-Request-Id"),
-			ResponseCode:    response.ResponseCode,
-			ResponseMessage: response.ResponseMessage,
+			ResponseCode:    response.GetMessage().ResponseCode,
+			ResponseMessage: response.GetMessage().ResponseMessage,
 		},
-		Data: body,
+		Data: nil,
 	}
+	r.context.Writer.Header().Set("X-Response-Code",response.GetMessage().ResponseCode)
 	r.context.Writer.WriteHeader(http.StatusBadRequest)
 	return r
 }
@@ -96,6 +108,8 @@ func (r *Response) InternalError(response helper.ResponseMessage) *Response {
 		},
 		Data: nil,
 	}
+	log.Printf("%v",response)
+	r.context.Writer.Header().Set("X-Response-Code",response.ResponseCode)
 	r.context.Writer.WriteHeader(http.StatusInternalServerError)
 	return r
 }
@@ -110,6 +124,7 @@ func (r *Response) UnprocessableEntity(body interface{}, response helper.Respons
 		},
 		Data: body,
 	}
+	r.context.Writer.Header().Set("X-Response-Code",response.ResponseCode)
 	r.context.Writer.WriteHeader(http.StatusUnprocessableEntity)
 	return r
 }
@@ -124,6 +139,7 @@ func (r *Response) Forbidden(body interface{}, response helper.ResponseMessage) 
 		},
 		Data: body,
 	}
+	r.context.Writer.Header().Set("X-Response-Code",response.ResponseCode)
 	r.context.Writer.WriteHeader(http.StatusForbidden)
 	return r
 }
@@ -138,6 +154,24 @@ func (r *Response) Unauthorized(body interface{}, response helper.ResponseMessag
 		},
 		Data: body,
 	}
+	r.context.Writer.Header().Set("X-Response-Code",response.ResponseCode)
 	r.context.Writer.WriteHeader(http.StatusUnauthorized)
+	return r
+}
+
+func (r *Response)ErrorResponse(err error)*Response  {
+	responseError := err.(exception.Exception)
+	r.body = &ResponseBody{
+		Meta: ResponseMeta{
+			Timestamp:       time.Now(),
+			XRequestId:      r.context.GetHeader("X-Request-Id"),
+			ResponseCode:    responseError.GetMessage().ResponseCode,
+			ResponseMessage: responseError.GetMessage().ResponseMessage,
+		},
+		Data: nil,
+	}
+	go log.Printf("%v",responseError.GetMessage())
+	r.context.Writer.Header().Set("X-Response-Code",responseError.GetMessage().ResponseCode)
+	r.context.Writer.WriteHeader(responseError.GetMessage().HttpCode)
 	return r
 }

@@ -8,6 +8,7 @@ package main
 import(
     "{{basePackage}}/src/controllers"
     "{{basePackage}}/src/configurations"
+    "{{basePackage}}/src/middleware"
     "github.com/gin-gonic/gin"
     "log"
     "net/http"
@@ -26,13 +27,14 @@ func main() {
     defer configurations.GetDatabaseConnection().DB().Close()
     configurations.SetRedisConnection()
     engine := gin.Default()
+    engine.Use(middleware.CorsHandler(engine))
     //health check
     engine.GET("/api/health", func(c *gin.Context) {
         return
     })
     controllers.GetRouters(engine)
     srv := &http.Server{
-    Addr:    "localhost:" + configurations.GetConfig().ServerPort,
+    Addr:    "0.0.0.0:" + configurations.GetConfig().ServerPort,
     Handler: engine,
     //WriteTimeout: time.Second * 15,
     //ReadTimeout:  time.Second * 15,

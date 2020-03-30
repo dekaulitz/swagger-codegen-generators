@@ -1,0 +1,44 @@
+package exception
+
+import (
+	"{{basePackage}}/src/helper"
+	"fmt"
+)
+
+type Exception interface {
+	error
+	Messages(string string)
+	LogMessage(string string)
+	GetMessage() *helper.ResponseMessage
+}
+
+type ExceptionHandler struct {
+	ResponseMessage *helper.ResponseMessage
+}
+
+func NewExceptionHandler(exc helper.ResponseMessage) *ExceptionHandler {
+	return &ExceptionHandler{
+		ResponseMessage: &exc,
+	}
+}
+
+func (e ExceptionHandler) Error() string {
+	return e.GetMessage().LogMessage
+}
+
+func (e ExceptionHandler) Messages(message string) {
+	e.ResponseMessage.ResponseMessage = fmt.Sprintf(e.ResponseMessage.ResponseMessage,message)
+}
+
+func (e *ExceptionHandler) GetMessage() *helper.ResponseMessage {
+	return e.ResponseMessage
+}
+func (e ExceptionHandler) LogMessage(string string) {
+	e.ResponseMessage.LogMessage = e.ResponseMessage.LogMessage + " " + string
+}
+
+func ExceptionThrow(exc helper.ResponseMessage, logMessage string) error {
+	err := NewExceptionHandler(exc)
+	err.LogMessage(logMessage)
+	return err
+}

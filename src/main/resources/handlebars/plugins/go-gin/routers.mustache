@@ -8,17 +8,11 @@ package {{apiPackage}}
 
 import (
     "github.com/gin-gonic/gin"
-    "{{basePackage}}/src/configurations"
 "net/http"
 )
 
 func GetRouters(r *gin.Engine) {
     //handler cors
-    r.Use(func(context *gin.Context) {
-        configurations.CorsHandler(r)
-        configurations.RequestFilter()
-        context.Next()
-    })
     //not found route
     r.NoRoute(func(c *gin.Context) {
         c.JSON(http.StatusNotFound, gin.H{"status": 404, "message": "routing not found"})

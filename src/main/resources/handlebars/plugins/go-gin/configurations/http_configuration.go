@@ -2,6 +2,7 @@ package configurations
 
 import (
 	"context"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -34,7 +35,13 @@ type HttpClient struct {
 func NewHttpClient(config *Config) *HttpClient {
 	return &HttpClient{Config: config}
 }
-
+func (ht *HttpClient) SetBody(body io.Reader) {
+	rc, ok := body.(io.ReadCloser)
+	if !ok && body != nil {
+		rc = ioutil.NopCloser(body)
+	}
+	ht.Request.Body = rc
+}
 func (h *HttpClient) SetHeaders(headers map[string]string) {
 	header := http.Header{}
 	for key, value := range headers {
@@ -74,6 +81,9 @@ func (h *HttpClient) doRequest() (*HttpClient, error) {
 	}
 	h.Request.URL, _ = url.Parse(h.Config.Url)
 	response, err := client.Do(&h.Request)
+	if err != nil {
+		return nil, err
+	}
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {

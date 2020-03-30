@@ -26,11 +26,11 @@ type {{classname}} struct {
 {{#vars}}
     {{#description}}
         // {{{description}}}{{/description}}
-    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}}
+    {{name}} {{^isEnum}}{{^isPrimitiveType}}{{^isContainer}}{{^isDateTime}}{{/isDateTime}}{{/isContainer}}{{/isPrimitiveType}}{{/isEnum}}{{{datatype}}} `gorm:"column:{{baseName}}"`
 {{/vars}}
 
 {{#x-repository-time}}
-    {{name}} time.Time
+    {{name}} time.Time `gorm:"column:{{baseName}}"`
 
 {{/x-repository-time}}
 }
