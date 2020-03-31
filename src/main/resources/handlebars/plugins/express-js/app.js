@@ -1,8 +1,5 @@
 const express = require('express')
 const app = express()
-const morgan = require('morgan')
-const path = require('path')
-const rfs = require('rotating-file-stream')
 const middleware=require('./src/middleware')
 
 const corsConfig = {
@@ -18,7 +15,7 @@ Load configuration
 let envPath = process.env.NODE_ENV === undefined ? 'env.test' : 'env.' + process.env.NODE_ENV
 console.log('app runs under environment' + envPath)
 
-let config = require('./src/configuration')
+let config = require('./src/configurations')
 config.loadConfiguration(envPath)
 
 const db = config.loadDatabase(config).connection
