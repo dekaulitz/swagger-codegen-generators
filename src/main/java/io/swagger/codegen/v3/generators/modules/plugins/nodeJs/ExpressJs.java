@@ -9,11 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ExpressJs extends BaseJavascript {
     static Logger LOGGER = LoggerFactory.getLogger(ExpressJs.class);
-
-
+    protected Set<String> notImport= new TreeSet<>();
+    private final String configFolder="src/configurations";
+    private final String configMiddleware="src/middleware";
+    private final String helperFolder="src/helper";
+    private final String utilsRedis="src/utils/redisUtils";
+    private final String exceptionFolder="src/exception";
     public ExpressJs() {
         super();
         cliOptions.clear();
@@ -21,6 +27,11 @@ public class ExpressJs extends BaseJavascript {
         this.apiTemplateFiles.put("api-controller.mustache", ".js");
         //add entities templates loader
         this.entitiesTemplateFiles.put("entities.mustache", ".js");
+
+        //add typing converter
+        typeMapping.clear();
+        typeMapping.put("integer", "Number");
+        typeMapping.put("string", "String");
 
     }
 
@@ -38,7 +49,14 @@ public class ExpressJs extends BaseJavascript {
             LOGGER.info("Set base package to invoker package (" + basePackage + ")");
         }
         //addsuporting files
-        supportingFiles.add(new SupportingFile("routers.mustache", basePackage + File.separator + "src/controllers", "routers.js"));
+        supportingFiles.add(new SupportingFile("routers.mustache",  File.separator + "src/controllers", "routers.js"));
+        supportingFiles.add(new SupportingFile("package.mustache", "", "package.json"));
+        supportingFiles.add(new SupportingFile("middleware/index.js", File.separator+configMiddleware, "index.js"));
+        supportingFiles.add(new SupportingFile("configurations/index.js", File.separator+configFolder, "index.js"));
+        supportingFiles.add(new SupportingFile("app.js", File.separator, "app.js"));
+
+        notImport.add("integer");
+
     }
 
     @Override
@@ -59,12 +77,12 @@ public class ExpressJs extends BaseJavascript {
 
     @Override
     public String apiFileFolder() {
-        return outputFolder + File.separator + basePackage + File.separator + "src/controllers";
+        return outputFolder + File.separator +  File.separator + "src/controllers";
     }
 
     @Override
     public String toApiName(String name) {
-         return "controller." + underscore(name);
+        return "controller." + underscore(name);
     }
 
     @Override
@@ -79,11 +97,13 @@ public class ExpressJs extends BaseJavascript {
 
     @Override
     public String entitiesFileFolder() {
-        return outputFolder + File.separator + basePackage + File.separator + "src/entities";
+        return outputFolder + File.separator +  File.separator + "src/entities";
     }
 
     @Override
     public String toEntityImport(String name) {
-        return "const " + name + "= require('../entities/" + toEntitiesName(name) + "')";
+        if (!notImport.contains(name))
+            return "const " + name + "= require('../entities/" + toEntitiesName(name) + "')";
+        return null;
     }
 }

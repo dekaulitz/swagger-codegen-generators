@@ -1,5 +1,6 @@
 package io.swagger.codegen.v3.generators.modules.plugins.nodeJs;
 
+import com.google.common.base.Strings;
 import io.swagger.codegen.v3.*;
 import io.swagger.codegen.v3.generators.modules.base.plugin.AbstractPlugin;
 import io.swagger.v3.core.util.Json;
@@ -156,10 +157,14 @@ public abstract class BaseJavascript extends AbstractPlugin {
         for (CodegenOperation operation : operations) {
             operation.httpMethod = operation.httpMethod.toLowerCase();
             operation.path = this.fittingWithExpressFormat(operation);
+            operation.headerParams.forEach(codegenParameter -> {
+                codegenParameter.baseName = codegenParameter.baseName.toLowerCase();
+            });
             List<CodegenParameter> params = operation.allParams;
             if (params != null && params.size() == 0) {
                 operation.allParams = null;
             }
+
             List<CodegenResponse> responses = operation.responses;
             if (responses != null) {
                 for (CodegenResponse resp : responses) {

@@ -27,7 +27,7 @@ routers.{{httpMethod}}('{{path}}', (req, res, next) => {
 {{#bodyParams}}
     let vmodel = req.body
 {{/bodyParams}}
-    if ({{#each requiredParams}}{{#if @last}}{{paramName}} != ""{{else}}{{paramName}} != "" && {{/if}}{{/each}}){
+    if ({{#each requiredParams}}{{#if @last}}{{paramName}} !== ""{{else}}{{paramName}} !== "" && {{/if}}{{/each}}){
         return ress.status(500).send({})
     }
     return res.status(200).send({})
