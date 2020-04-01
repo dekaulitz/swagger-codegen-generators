@@ -32,7 +32,7 @@ const {{classname}}Repository ={}
 }, { strict: true, versionKey: false })
 {{#x-repository-table}}
 {{#description}}//{{{description}}}{{/description}}
-{{classname}}Repository.Connection = mongoose.model('{{baseName}}', {{classname}}Repository.{{classname}})
+{{classname}}Repository.Repository = mongoose.model('{{baseName}}', {{classname}}Repository.{{classname}})
 {{/x-repository-table}}
 module.exports = {{classname}}Repository
     {{/isEnum}}{{/model}}{{/models}}
