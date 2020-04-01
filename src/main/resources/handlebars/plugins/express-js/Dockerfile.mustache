@@ -1,0 +1,11 @@
+FROM node:alpine
+ADD package.json /app
+WORKDIR /app
+RUN npm install
+ADD . /app
+RUN npm install --production
+#npm run devstart
+ENTRYPOINT ["npm", "start"]
+#run npm install generator/package.json
+#run node public
+EXPOSE 7070
