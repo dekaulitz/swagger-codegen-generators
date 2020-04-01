@@ -51,9 +51,12 @@ public class ExpressJs extends BaseJavascript {
         //addsuporting files
         supportingFiles.add(new SupportingFile("routers.mustache",  File.separator + "src/controllers", "routers.js"));
         supportingFiles.add(new SupportingFile("package.mustache", "", "package.json"));
-        supportingFiles.add(new SupportingFile("middleware/index.js", File.separator+configMiddleware, "index.js"));
-        supportingFiles.add(new SupportingFile("configurations/index.js", File.separator+configFolder, "index.js"));
-        supportingFiles.add(new SupportingFile("app.js", File.separator, "app.js"));
+        supportingFiles.add(new SupportingFile("middleware/index.mustache", File.separator+configMiddleware, "index.js"));
+        supportingFiles.add(new SupportingFile("configurations/index.mustache", File.separator+configFolder, "index.js"));
+        supportingFiles.add(new SupportingFile("configurations/configurations.response.mustache", File.separator+configFolder, "configurations.response.js"));
+        supportingFiles.add(new SupportingFile("app.mustache", File.separator, "app.js"));
+        supportingFiles.add(new SupportingFile("helper/helper.status.code.mustache", File.separator+helperFolder, "helper.status.code.js"));
+        supportingFiles.add(new SupportingFile("exception/exception.app.mustache", File.separator+exceptionFolder, "exception.app.js"));
 
         notImport.add("integer");
 

@@ -6,6 +6,8 @@
  */
 const express = require('express')
 const routers = express.Router()
+const appException = require('../exception/exception.app')
+const statusCode = require('../helper/helper.status.code')
 {{#operations}}
 {{#operation}}
 {{#contents}}
@@ -28,9 +30,9 @@ routers.{{httpMethod}}('{{path}}', (req, res, next) => {
     let vmodel = req.body
 {{/bodyParams}}
     if ({{#each requiredParams}}{{#if @last}}{{paramName}} !== ""{{else}}{{paramName}} !== "" && {{/if}}{{/each}}){
-        return ress.status(500).send({})
+        throw  new appException(statusCode.BAD_REQUEST,"invalid request")
     }
-    return res.status(200).send({})
+    return res.setContext(req).ok({}).build()
 })
 {{/contents}}
     {{/operation}}

@@ -3,8 +3,8 @@
     "version": "0.0.1",
     "private": true,
     "scripts": {
-        "start": "node  $NODE_DEBUG_OPTION app.js",
-        "dev-run": "nodemon $NODE_DEBUG_OPTION  app.js",
+        "start": "node  app.js",
+        "dev-run": "NODE_ENV=test node app.js",
         "test": "mocha"
     },
     "dependencies": {

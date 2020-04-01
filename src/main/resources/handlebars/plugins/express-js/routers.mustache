@@ -6,8 +6,9 @@
  */
 
 const express = require('express')
-let cookieParser = require('cookie-parser')
-let app = express()
+const cookieParser = require('cookie-parser')
+const appException=require('../exception/exception.app.js')
+const app = express()
 
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
@@ -17,5 +18,14 @@ app.use(express.json())
 app.use(require('../controllers/{{classFilename}}'))
 {{/apis}}{{/apiInfo}}
 
+app.use(function (err, req, res, next) {
+    console.log(err.log)
+    if(err instanceof appException){
+        return res.setContext(req).errorResponse(err).build()
+    }
+    return res.status(500).send({
+        error: err.message
+    })
+})
 module.exports = app
 
